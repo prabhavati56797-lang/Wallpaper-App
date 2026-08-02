@@ -1,146 +1,250 @@
-import React from "react";
+import React, { Component } from 'react';
 import {
-  View,
-  Text,
-  Dimensions,
   StyleSheet,
-  ImageBackground,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
   StatusBar,
   ActivityIndicator,
-  TouchableOpacity,
-  Alert
-} from "react-native";
-
-import * as FileSystem from 'expo-file-system';
-import * as MediaLibrary from 'expo-media-library';
+  Alert,
+  Platform,
+  Dimensions,
+  FlatList,
+  Image
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 
-import { AntDesign as Icon } from '@expo/vector-icons';
+const { width } = Dimensions.get('window');
 
-const Dev_Height = Dimensions.get('screen').height;
-const Dev_Width = Dimensions.get('screen').width;
+// Pexels API Key
+const PEXELS_KEY = Constants.expoConfig?.extra?.PEXELS_API_KEY || Constants.manifest?.extra?.PEXELS_API_KEY;
 
-// Note: the app now passes the full photo object when navigating to this screen.
-export default class ImageDisplay extends React.Component{
+// --- डमी डेटा (जब API की न हो) ---
+const DUMMY_NAIL_ART_PHOTOS = [
+  { id: '1', uri: 'https://images.pexels.com/photos/7619953/pexels-photo-7619953.jpeg?auto=compress&cs=tinysrgb&w=800' },
+  { id: '2', uri: 'https://images.pexels.com/photos/7619955/pexels-photo-7619955.jpeg?auto=compress&cs=tinysrgb&w=800' },
+  { id: '3', uri: 'https://images.pexels.com/photos/7957072/pexels-photo-7957072.jpeg?auto=compress&cs=tinysrgb&w=800' },
+  { id: '4', uri: 'https://images.pexels.com/photos/10298947/pexels-photo-10298947.jpeg?auto=compress&cs=tinysrgb&w=800' },
+  { id: '5', uri: 'https://images.pexels.com/photos/10298953/pexels-photo-10298953.jpeg?auto=compress&cs=tinysrgb&w=800' },
+  { id: '6', uri: 'https://images.pexels.com/photos/7195450/pexels-photo-7195450.jpeg?auto=compress&cs=tinysrgb&w=800' },
+];
 
-  constructor(props){
+const DUMMY_MOUNTAINS_PHOTOS = [
+    { id: '7', uri: 'https://images.pexels.com/photos/1666062/pexels-photo-1666062.jpeg?auto=compress&cs=tinysrgb&w=800' },
+    { id: '8', uri: 'https://images.pexels.com/photos/327136/pexels-photo-327136.jpeg?auto=compress&cs=tinysrgb&w=800' },
+    { id: '9', uri: 'https://images.pexels.com/photos/371633/pexels-photo-371633.jpeg?auto=compress&cs=tinysrgb&w=800' },
+];
+
+export default class ImageDisplay extends Component {
+  constructor(props) {
     super(props);
-    const photo = this.props.route?.params?.photo || {};
-    const uri = photo?.src?.original || photo?.src?.large2x || photo?.src?.large || photo?.src?.medium || '';
-
-    this.state={
-      photo: photo,
-      image_uri: uri,
-      isloading: false,
-      Activity_Indicator: true
-    }
+    const passedQuery = this.props.route?.params?.query || "Spring nail art";
+    
+    this.state = {
+      searchQuery: passedQuery,
+      photoResults: [],
+      isLoading: false,
+    };
   }
 
-  async downloadImage(){
+  componentDidMount() {
+    this.fetchImagesByKeyword(this.state.searchQuery);
+  }
+
+  fetchImagesByKeyword = async (keyword) => {
+    this.setState({ isLoading: true, photoResults: [] });
+
+    if (!PEXELS_KEY) {
+        setTimeout(() => {
+            let dummyData = [];
+            if (keyword.toLowerCase().includes("nail")) { dummyData = DUMMY_NAIL_ART_PHOTOS; }
+            else if (keyword.toLowerCase().includes("mountain")) { dummyData = DUMMY_MOUNTAINS_PHOTOS; }
+            else { dummyData = [...DUMMY_NAIL_ART_PHOTOS, ...DUMMY_MOUNTAINS_PHOTOS]; }
+            this.setState({ photoResults: dummyData, isLoading: false });
+        }, 1000);
+        return;
+    }
+
     try {
-      if (!this.state.image_uri) {
-        Alert.alert('No image available to download.');
-        return;
-      }
-
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== 'granted'){
-        Alert.alert('Permission required', 'Permission to access media library is required to save images.');
-        return;
-      }
-
-      const extMatch = /[^.]+$/.exec(this.state.image_uri);
-      const ext = extMatch ? '.' + extMatch[0] : '.jpg';
-      const filename = `image_${Date.now()}${ext}`;
-      const fileUri = FileSystem.cacheDirectory + filename;
-
-      const downloadRes = await FileSystem.downloadAsync(this.state.image_uri, fileUri);
-
-      if (downloadRes && downloadRes.status === 200) {
-        const asset = await MediaLibrary.createAssetAsync(downloadRes.uri);
-        await MediaLibrary.createAlbumAsync('Download', asset, false).catch(()=>{});
-        Alert.alert('Download Success!', 'Image saved to your gallery.');
-        // Optionally clean cache file
-        try { await FileSystem.deleteAsync(downloadRes.uri, { idempotent: true }); } catch(e){}
+      const response = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(keyword)}&per_page=20`, {
+        headers: { Authorization: PEXELS_KEY },
+      });
+      const json = await response.json();
+      
+      if (json && json.photos) {
+        const formattedPhotos = json.photos.map(photo => ({
+          uri: photo.src.medium,
+          id: String(photo.id),
+        }));
+        this.setState({ photoResults: formattedPhotos, isLoading: false });
       } else {
-        Alert.alert('Download failed', 'Unable to download image.');
+        this.setState({ photoResults: [], isLoading: false });
       }
-
-    } catch (err) {
-      console.error(err);
-      Alert.alert('Error', 'An error occurred while saving the image.');
+    } catch (error) {
+      Alert.alert("Error", "Could not load images. Please try again.");
+      this.setState({ isLoading: false });
     }
+  };
+
+  handleNewSearch = () => {
+    if (!this.state.searchQuery.trim()) {
+      Alert.alert("Warning", "Please enter a search keyword.");
+      return;
+    }
+    this.fetchImagesByKeyword(this.state.searchQuery);
   }
 
-  render(){
-    return(
+  renderItem = ({ item }) => (
+    <TouchableOpacity 
+      style={styles.imageCard} 
+      onPress={() => Alert.alert("Image", `Tapped image ID: ${item.id}`)}
+    >
+      <Image source={{ uri: item.uri }} style={styles.imageStyle} resizeMode="cover" />
+    </TouchableOpacity>
+  );
+
+  render() {
+    return (
       <View style={styles.container}>
-        <StatusBar translucent backgroundColor="transparent" /> 
-        {!this.state.isloading ? (
-          <ImageBackground 
-            source={{uri:this.state.image_uri}} 
-            style={{height:"100%",width:"100%"}}
-            onLoadStart={()=>this.setState({ Activity_Indicator : true })}
-            onLoadEnd={()=>this.setState({ Activity_Indicator : false })}
+        <StatusBar barStyle="dark-content" backgroundColor="#F8F9FA" />
+
+        {/* 1. Header */}
+        <View style={styles.headerWrapper}>
+          <TouchableOpacity 
+              style={styles.backButton}
+              onPress={() => this.props.navigation.goBack()}
           >
-            <ActivityIndicator 
-              color="#FFF" 
-              size="large"  
-              style={{position:"absolute",top:Dev_Height-(0.5*Dev_Height),right:Dev_Width-(0.55*Dev_Width)}} 
-              animating={this.state.Activity_Indicator}
-            />
+              <Ionicons name="arrow-back" size={22} color="#212121" />
+          </TouchableOpacity>
 
-            <View style={styles.close_button_style}>
-              <TouchableOpacity style={styles.Close_Button_Touchable} onPress={()=>this.props.navigation.goBack()}>
-                <Icon name="left" size={18} color="#FFF" />
+          <View style={styles.searchBox}>
+              <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search anything..."
+                  placeholderTextColor="#9E9E9E"
+                  value={this.state.searchQuery}
+                  onChangeText={(text) => this.setState({ searchQuery: text })}
+                  onSubmitEditing={this.handleNewSearch}
+              />
+              <TouchableOpacity onPress={this.handleNewSearch} style={styles.searchIconBtn}>
+                  <Ionicons name="search" size={18} color="#9E9E9E" />
               </TouchableOpacity>
-            </View>
+          </View>
+        </View>
 
-            <View style={{height:"70%",width:"100%",justifyContent:"flex-end",backgroundColor:"transparent",alignItems:"center"}}>
-              <TouchableOpacity onPress={()=>this.downloadImage()}
-                style={{height:50,width:160,borderRadius:15,backgroundColor:"rgba(225,225,225,0.9)",justifyContent:"center",alignItems:"center",marginBottom:40}}>
-                <Text style={{color:"#121212",fontSize:16}}>Download</Text>
-              </TouchableOpacity>
-            </View>
-          </ImageBackground>
-        ) : (
-          <View style={{height:"100%",width:"100%"}}>
-            <View style={styles.close_button_style}>
-              <TouchableOpacity style={styles.Close_Button_Touchable} onPress={()=>this.props.navigation.goBack()}>
-                <Icon name="left" size={18} color="#2abb9b" />
-              </TouchableOpacity>
-            </View>
-            <View style={{height:"50%",width:"100%",justifyContent:"center",alignItems:"center"}}>
-              <ActivityIndicator color="#2abb9b" size="large" />
-            </View>
+        {/* 2. Loading */}
+        {this.state.isLoading && (
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator size="large" color="#673AB7" />
+            <Text style={styles.loadingText}>Loading results...</Text>
           </View>
         )}
+
+        {/* 3. Empty State */}
+        {!this.state.isLoading && this.state.photoResults.length === 0 && (
+            <View style={styles.emptyContainer}>
+                <Ionicons name="images-outline" size={50} color="#BDBDBD" />
+                <Text style={styles.emptyText}>No images found for "{this.state.searchQuery}".</Text>
+            </View>
+        )}
+
+        {/* 4. Grid List (2 Columns) */}
+        {!this.state.isLoading && this.state.photoResults.length > 0 && (
+            <FlatList
+                data={this.state.photoResults}
+                renderItem={this.renderItem}
+                keyExtractor={(item) => item.id}
+                numColumns={2}
+                contentContainerStyle={styles.listContainer}
+                showsVerticalScrollIndicator={false}
+            />
+        )}
       </View>
-    )
+    );
   }
 }
 
 const styles = StyleSheet.create({
-  container:{
-    height:Dev_Height,
-    width:Dev_Width,
-    justifyContent:"center",
-    alignItems:"center",
-    backgroundColor:"#222222",
+  container: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
   },
-  close_button_style: {
-    height: '20%',
-    width: '90%',
-    justifyContent:"center",
-    paddingTop:StatusBar.currentHeight
+  headerWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 45,
+    paddingBottom: 15,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEEEEE',
   },
-  Close_Button_Touchable: {
-    height: 50,
-    width: 50,
-    backgroundColor: 'rgba(225,225,225,0.1)',
-    borderRadius: 15,
+  backButton: {
+    width: 42,
+    height: 42,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft:"10%"
+    marginRight: 10,
   },
-})
+  searchBox: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 12,
+    height: 42,
+    paddingHorizontal: 12,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: '#212121',
+  },
+  searchIconBtn: {
+    padding: 5,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: '#757575',
+    marginTop: 10,
+    fontSize: 12,
+  },
+  listContainer: {
+    paddingHorizontal: 10,
+    paddingTop: 10,
+    paddingBottom: 20,
+  },
+  imageCard: {
+    flex: 1,
+    margin: 6,
+    height: 220,
+    borderRadius: 14,
+    backgroundColor: '#E0E0E0',
+    overflow: 'hidden',
+  },
+  imageStyle: {
+    width: '100%',
+    height: '100%',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+  },
+  emptyText: {
+    fontSize: 15,
+    color: '#424242',
+    textAlign: 'center',
+    marginTop: 15,
+    fontWeight: '500',
+  }
+});
