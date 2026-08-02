@@ -1,115 +1,120 @@
-import React from "react"
+import React from "react";
 import {
   View,
   Text,
-  SafeAreaView,
   Dimensions,
   StyleSheet,
   ImageBackground,
   StatusBar,
   ActivityIndicator,
   TouchableOpacity,
-  NativeModules
-} from "react-native"
- // 
-import { createClient } from 'pexels';
-import RNFetchBlob from 'rn-fetch-blob'
+  Alert
+} from "react-native";
 
-const client = createClient('***');
-import Icon from 'react-native-vector-icons/AntDesign';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
+import Constants from 'expo-constants';
 
-const Dev_Height = Dimensions.get('screen').height
-const Dev_Width = Dimensions.get('screen').width
+import { AntDesign as Icon } from '@expo/vector-icons';
 
+const Dev_Height = Dimensions.get('screen').height;
+const Dev_Width = Dimensions.get('screen').width;
+
+// Note: the app now passes the full photo object when navigating to this screen.
 export default class ImageDisplay extends React.Component{
 
   constructor(props){
     super(props);
+    const photo = this.props.route?.params?.photo || {};
+    const uri = photo?.src?.original || photo?.src?.large2x || photo?.src?.large || photo?.src?.medium || '';
+
     this.state={
-      id: this.props.route.params.id,
-      image_uri:"",
-      isloading:false,
-      Activity_Indicator:true
+      photo: photo,
+      image_uri: uri,
+      isloading: false,
+      Activity_Indicator: true
     }
-    this.Findimage()
   }
 
-  Findimage=()=>{
-      this.setState({ isloading : true })
-      client.photos.show({ id: this.state.id }).then(photo => {
-         this.setState({ image_uri : photo["src"]["original"] })
-         this.setState({ isloading : false })
-      });
-  }
-
-downloadImage(){
-   var date      = new Date();
-   var ext       = this.getExtention(this.state.image_uri);
-   ext = "."+ext[0];
-   const { config, fs } = RNFetchBlob ; 
-   let PictureDir = fs.dirs.PictureDir
-   let options = {
-   fileCache: true,
-    addAndroidDownloads : {
-      useDownloadManager : true,
-      notification : true,
-      path:  PictureDir + "/image_"+Math.floor(date.getTime() 
-          + date.getSeconds() / 2)+ext,
-     description : 'Image'
+  async downloadImage(){
+    try {
+      if (!this.state.image_uri) {
+        Alert.alert('No image available to download.');
+        return;
       }
-   }
-    config(options).fetch('GET', this.state.image_uri).then((res) => {
-      Alert.alert("Download Success !");
-   });
-}
 
-getExtention(filename){
-    return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename) : 
-undefined;
-}
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== 'granted'){
+        Alert.alert('Permission required', 'Permission to access media library is required to save images.');
+        return;
+      }
+
+      const extMatch = /[^.]+$/.exec(this.state.image_uri);
+      const ext = extMatch ? '.' + extMatch[0] : '.jpg';
+      const filename = `image_${Date.now()}${ext}`;
+      const fileUri = FileSystem.cacheDirectory + filename;
+
+      const downloadRes = await FileSystem.downloadAsync(this.state.image_uri, fileUri);
+
+      if (downloadRes && downloadRes.status === 200) {
+        const asset = await MediaLibrary.createAssetAsync(downloadRes.uri);
+        await MediaLibrary.createAlbumAsync('Download', asset, false).catch(()=>{});
+        Alert.alert('Download Success!', 'Image saved to your gallery.');
+        // Optionally clean cache file
+        try { await FileSystem.deleteAsync(downloadRes.uri, { idempotent: true }); } catch(e){}
+      } else {
+        Alert.alert('Download failed', 'Unable to download image.');
+      }
+
+    } catch (err) {
+      console.error(err);
+      Alert.alert('Error', 'An error occurred while saving the image.');
+    }
+  }
 
   render(){
     return(
       <View style={styles.container}>
-	    <StatusBar translucent backgroundColor="transparent" /> 
-      {!this.state.isloading ? ( 
-        <ImageBackground 
-         source={{uri:this.state.image_uri}} 
-         style={{height:"100%",width:"100%"}}
-         onLoadStart={()=>this.setState({ Activity_Indicator : true })}
-         onLoadEnd={()=>this.setState({ Activity_Indicator : false })}
-         >
-         <ActivityIndicator 
-          color="#FFF" 
-          size="large"  
-          style={{position:"absolute",top:Dev_Height-(0.5*Dev_Height),right:Dev_Width-(0.55*Dev_Width)}} 
-          animating={this.state.Activity_Indicator}/>
-          <View style={styles.close_button_style}>
-            <TouchableOpacity style={styles.Close_Button_Touchable} onPress={()=>this.props.navigation.goBack()}>
-              <Icon name="left" size={18} color="#FFF" />
-            </TouchableOpacity>
-          </View>
+        <StatusBar translucent backgroundColor="transparent" /> 
+        {!this.state.isloading ? (
+          <ImageBackground 
+            source={{uri:this.state.image_uri}} 
+            style={{height:"100%",width:"100%"}}
+            onLoadStart={()=>this.setState({ Activity_Indicator : true })}
+            onLoadEnd={()=>this.setState({ Activity_Indicator : false })}
+          >
+            <ActivityIndicator 
+              color="#FFF" 
+              size="large"  
+              style={{position:"absolute",top:Dev_Height-(0.5*Dev_Height),right:Dev_Width-(0.55*Dev_Width)}} 
+              animating={this.state.Activity_Indicator}
+            />
 
-          <View style={{height:"70%",width:"100%",justifyContent:"flex-end",backgroundColor:"transparent",alignItems:"center"}}>
-            <TouchableOpacity onPress={()=>this.downloadImage()}
-             style={{height:"8%",width:"40%",borderRadius:15,backgroundColor:"rgba(225,225,225,0.9)",justifyContent:"center",alignItems:"center"}}>
-              <Text style={{color:"#121212",fontSize:16}}>Download</Text>
-            </TouchableOpacity>
+            <View style={styles.close_button_style}>
+              <TouchableOpacity style={styles.Close_Button_Touchable} onPress={()=>this.props.navigation.goBack()}>
+                <Icon name="left" size={18} color="#FFF" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={{height:"70%",width:"100%",justifyContent:"flex-end",backgroundColor:"transparent",alignItems:"center"}}>
+              <TouchableOpacity onPress={()=>this.downloadImage()}
+                style={{height:50,width:160,borderRadius:15,backgroundColor:"rgba(225,225,225,0.9)",justifyContent:"center",alignItems:"center",marginBottom:40}}>
+                <Text style={{color:"#121212",fontSize:16}}>Download</Text>
+              </TouchableOpacity>
+            </View>
+          </ImageBackground>
+        ) : (
+          <View style={{height:"100%",width:"100%"}}>
+            <View style={styles.close_button_style}>
+              <TouchableOpacity style={styles.Close_Button_Touchable} onPress={()=>this.props.navigation.goBack()}>
+                <Icon name="left" size={18} color="#2abb9b" />
+              </TouchableOpacity>
+            </View>
+            <View style={{height:"50%",width:"100%",justifyContent:"center",alignItems:"center"}}>
+              <ActivityIndicator color="#2abb9b" size="large" />
+            </View>
           </View>
-        </ImageBackground>
-      ) : 
-      (
-        <View style={{height:"100%",width:"100%"}}>
-          <View style={styles.close_button_style}>
-            <TouchableOpacity style={styles.Close_Button_Touchable} onPress={()=>this.props.navigation.goBack()}>
-              <Icon name="left" size={18} color="#2abb9b" />
-            </TouchableOpacity>
-          </View>
-          <View style={{height:"50%",width:"100%",justifyContent:"center",alignItems:"center"}}>
-          <ActivityIndicator color="#2abb9b" size="large" />
-          </View>
-        </View>
-      )}
+        )}
       </View>
     )
   }

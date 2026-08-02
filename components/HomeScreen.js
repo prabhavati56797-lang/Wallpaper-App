@@ -11,7 +11,6 @@ import {
   StatusBar,
   TouchableOpacity,
   TextInput,
-  ScrollView,
   Animated
 } from "react-native"
 
@@ -21,18 +20,30 @@ const Dev_Height = Dimensions.get('screen').height
 const Dev_Width = Dimensions.get('screen').width
 const Item_Width = Dev_Width-(0.6*Dev_Width)
 
-import Icon from "react-native-vector-icons/AntDesign"
-import Carousel from 'react-native-snap-carousel';
+import { AntDesign as Icon } from '@expo/vector-icons'
 
-import { createClient } from 'pexels';
-const client = createClient('****');
+
+
+//import Carousel from 'react-native-snap-carousel';
+
+
+
+
+import Constants from 'expo-constants';
+
+// Fallback data if no Pexels API key is configured
+const FALLBACK_PHOTOS = [
+  { id: '1', src: { medium: 'https://images.pexels.com/photos/2641886/pexels-photo-2641886.jpeg', original: 'https://images.pexels.com/photos/2641886/pexels-photo-2641886.jpeg' } },
+  { id: '2', src: { medium: 'https://images.pexels.com/photos/2147029/pexels-photo-2147029.jpeg', original: 'https://images.pexels.com/photos/2147029/pexels-photo-2147029.jpeg' } },
+  { id: '3', src: { medium: 'https://images.pexels.com/photos/3136673/pexels-photo-3136673.jpeg', original: 'https://images.pexels.com/photos/3136673/pexels-photo-3136673.jpeg' } },
+]
 
 export default class HomeScreen extends React.Component{
 
     slide = () => {
     Animated.spring(this.state.x, {
       toValue: 0,
-      useNativeDriver:"true",
+      useNativeDriver: true,
       speed:0.2
     }).start();
     this.setState({
@@ -108,12 +119,29 @@ export default class HomeScreen extends React.Component{
         }
     }
 
-    FindImages=()=>{
+    FindImages=async()=>{
       const query = "Landscapes"
-      client.photos.search({ query , per_page: 10 }).then(photos => {
-        this.setState({ carouselItems : photos })
-        this.setState({ carouselItems : this.state.carouselItems['photos'] })
-      })
+      const PEXELS_KEY = Constants.expoConfig?.extra?.PEXELS_API_KEY || Constants.manifest?.extra?.PEXELS_API_KEY || null;
+
+      if (!PEXELS_KEY) {
+        this.setState({ carouselItems: FALLBACK_PHOTOS });
+        return;
+      }
+
+      try {
+        const resp = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=10`, {
+          headers: { Authorization: PEXELS_KEY }
+        });
+        const json = await resp.json();
+        if (json && json.photos) {
+          this.setState({ carouselItems : json.photos })
+        } else {
+          this.setState({ carouselItems: FALLBACK_PHOTOS });
+        }
+      } catch (err) {
+        console.warn(err);
+        this.setState({ carouselItems: FALLBACK_PHOTOS });
+      }
     }
 
     componentDidMount(){
@@ -151,7 +179,7 @@ export default class HomeScreen extends React.Component{
     _renderItem=({item,index})=>(
           <TouchableOpacity style={{ height:"100%",width:"100%",borderRadius:15,justifyContent:"center",alignItems:"center"}} 
             onPress={()=>this.props.navigation.navigate("ImageDisplay",{
-              "id":item["id"]
+              photo: item
             })}>
             <Image source={{uri:item['src']['medium']}} style={{height:"100%",width:"100%",borderRadius:15}}/>
           </TouchableOpacity>
@@ -195,19 +223,37 @@ export default class HomeScreen extends React.Component{
       </View>
 
       <View style={{height:"20%"}}>
-        <Carousel
-              layout={"default"}
-              ref={ref => this.carousel = ref}
-              data={this.state.carouselItems}
-              sliderWidth={Dev_Width}
-              itemWidth={Item_Width}
-              renderItem={this._renderItem}
-              bounces={true} 
-              keyExtractor={(item, index) => item.key}
-              activeSlideAlignment={"center"}
-              autoplay={true}
-              loop={true}
-          />
+
+
+
+
+
+
+
+<View
+  style={{
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  }}
+>
+  <Text style={{ color: "#FFF", fontSize: 18 }}>
+    Carousel Removed for Testing
+  </Text>
+</View>
+
+
+
+
+
+
+
+
+
+
+
+
+
           </View>
 
 
@@ -220,7 +266,7 @@ export default class HomeScreen extends React.Component{
                 style={{
                 height:"100%",width:"93%"}}
                 data={this.state.categories}
-                keyExtractor={({ _id }, index) => _id}
+                keyExtractor={(item, index) => item.id ? item.id.toString() : index.toString()}
                 renderItem={this._renderItemCatogories}
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
