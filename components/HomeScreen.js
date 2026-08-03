@@ -41,34 +41,59 @@ export default class HomeScreen extends Component {
   };
 
   render() {
+    const newLocal = "crown";
     return (
       <View style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="#F2F2F7" />
 
-        {/* 1. Top Header */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.iconBtn} onPress={() => this.showNextVersionAlert("Menu")}>
-            <Ionicons name="menu-outline" size={24} color="#1C1C1E" />
-          </TouchableOpacity>
 
-          <Text style={styles.logoText}>Image<Text style={{ color: '#007AFF' }}>Search</Text></Text>
 
-          <View style={styles.headerRight}>
-            <TouchableOpacity style={[styles.iconBtn, { marginRight: 8 }]} onPress={() => this.showNextVersionAlert("Notifications")}>
-              <Ionicons name="notifications-outline" size={21} color="#1C1C1E" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => this.showNextVersionAlert("Profile")}>
-              <Image 
-                source={{ uri: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=200' }} 
-                style={styles.profileImg} 
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
 
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-          
-          <Text style={styles.subTitle}>Search anything, discover everything</Text>
+
+
+
+
+
+
+
+{/* 1. Top Header */}
+<View style={styles.header}>
+  <TouchableOpacity style={styles.iconBtn} onPress={() => this.showNextVersionAlert("Menu")}>
+    <Ionicons name="menu-outline" size={24} color="#1C1C1E" />
+  </TouchableOpacity>
+
+  <Text style={styles.logoText}>Image<Text style={{ color: '#007AFF' }}>Search</Text></Text>
+
+  <View style={styles.headerRight}>
+    <TouchableOpacity style={[styles.iconBtn, { marginRight: 8 }]} onPress={() => this.showNextVersionAlert("Notifications")}>
+      <Ionicons name="notifications-outline" size={21} color="#0a0a0a" />
+    </TouchableOpacity>
+
+    {/* Pro Subscription Icon Added Here */}
+    <TouchableOpacity style={[styles.iconBtn, { marginRight: 8 }]} onPress={() => this.showNextVersionAlert("Go Pro Subscription")}>
+      <Ionicons name="star" size={21} color="#e7892b" />
+    </TouchableOpacity>
+
+    <TouchableOpacity onPress={() => this.showNextVersionAlert("Profile")}>
+      <Image 
+        source={{ uri: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=200' }} 
+        style={styles.profileImg} 
+      />
+    </TouchableOpacity>
+  </View>
+</View>
+
+<ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+  
+  <Text style={styles.subTitle}>Search anything, discover everything</Text>
+
+
+
+
+
+
+
+
 
           {/* 2. Search Bar & Lightweight AI Sparkle Button */}
           <View style={styles.searchRow}>
@@ -96,108 +121,150 @@ export default class HomeScreen extends Component {
             </TouchableOpacity>
           </View>
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesRow}>
-            {[
-              { name: 'Nature', icon: 'leaf-outline', color: '#E8F5E9', iconColor: '#34C759', query: 'Nature landscape' },
-              { name: 'Abstract', icon: 'color-palette-outline', color: '#F3E5F5', iconColor: '#AF52DE', query: 'Abstract art' },
-              { name: 'Technology', icon: 'laptop-outline', color: '#E3F2FD', iconColor: '#007AFF', query: 'Technology futuristic' },
-              { name: 'Animals', icon: 'paw-outline', color: '#FFF3E0', iconColor: '#FF9500', query: 'Cute animals' },
-              { name: 'Travel', icon: 'airplane-outline', color: '#E0F7FA', iconColor: '#5AC8FA', query: 'Travel destinations' },
-              { name: 'Architecture', icon: 'business-outline', color: '#EDE7F6', iconColor: '#5856D6', query: 'Modern architecture' }
-            ].map((cat, index) => (
-              <TouchableOpacity 
-                key={index} 
-                style={styles.categoryCard}
-                onPress={() => this.handleCategoryClick(cat.query)}
-              >
-                <View style={[styles.categoryIconBox, { backgroundColor: cat.color }]}>
-                  <Ionicons name={cat.icon} size={24} color={cat.iconColor} />
-                </View>
-                <Text style={styles.categoryName}>{cat.name}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
 
-          {/* 4. NEW: Professional Circular Scrollable V2 Feature Hub (Music, HD Videos, GIFs, etc.) */}
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Version 2.0 Hub (Coming Soon)</Text>
-            <Text style={styles.badgeV2}>NEW</Text>
-          </View>
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.circularRow}>
-            {[
-              { name: 'HD Videos', icon: 'videocam-outline', bg: '#E3F2FD', color: '#007AFF' },
-              { name: 'Music Hub', icon: 'musical-notes-outline', bg: '#FCE4EC', color: '#E91E63' },
-              { name: 'AI Generator', icon: 'color-wand-outline', bg: '#F3E5F5', color: '#9C27B0' },
-              { name: '3D Avatars', icon: 'cube-outline', bg: '#E8F5E9', color: '#4CAF50' },
-              { name: 'GIFs & Memes', icon: 'happy-outline', bg: '#FFFDE7', color: '#FBC02D' },
-              { name: 'Stickers', icon: 'images-outline', bg: '#FFF3E0', color: '#FF9800' }
-            ].map((item, idx) => (
-              <TouchableOpacity 
-                key={idx} 
-                style={styles.circularCard}
-                onPress={() => this.showNextVersionAlert(`${item.name} Feature`)}
-                activeOpacity={0.8}
-              >
-                <View style={[styles.circularIconCircle, { backgroundColor: item.bg }]}>
-                  <Ionicons name={item.icon} size={26} color={item.color} />
-                </View>
-                <Text style={styles.circularText} numberOfLines={1}>{item.name}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
 
-          {/* 5. Featured Banner */}
-          <View style={styles.bannerContainer}>
-            <View style={styles.bannerTextContent}>
-              <View style={styles.featuredBadge}>
-                <Ionicons name="star" size={10} color="#FF9500" />
-                <Text style={styles.featuredBadgeText}> Featured</Text>
-              </View>
-              <Text style={styles.bannerTitle}>Discover High Quality Images</Text>
-              <Text style={styles.bannerSubtitle}>Millions of stunning images at your fingertips.</Text>
-              
-              <TouchableOpacity 
-                style={styles.exploreNowBtn}
-                onPress={() => this.handleCategoryClick("High Quality HD")}
-              >
-                <Text style={styles.exploreNowText}>Explore Now</Text>
-                <Ionicons name="chevron-forward" size={13} color="#FFF" style={{ marginLeft: 2 }} />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.bannerGraphic}>
-              <Feather name="feather" size={60} color="rgba(0,122,255,0.12)" style={{ transform: [{ rotate: '-45deg' }] }} />
-            </View>
-          </View>
 
-          {/* 6. Editor's Toolkit */}
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Editor's Toolkit</Text>
-            <TouchableOpacity onPress={() => this.showNextVersionAlert("Editor's Toolkit View All")}>
-              <Text style={styles.viewAllText}>View All</Text>
-            </TouchableOpacity>
-          </View>
+<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesRow}>
+  {[
+    { name: 'Nature', icon: 'flower-tulip-outline', color: '#E8F5E9', iconColor: '#34C759', query: 'Nature landscape' },
+    { name: 'Abstract', icon: 'shape-outline', color: '#F3E5F5', iconColor: '#AF52DE', query: 'Abstract art' },
+    { name: 'Technology', icon: 'chip', color: '#E3F2FD', iconColor: '#007AFF', query: 'Technology futuristic' },
+    { name: 'Animals', icon: 'cat', color: '#FFF3E0', iconColor: '#FF9500', query: 'Cute animals' },
+    { name: 'Travel', icon: 'earth', color: '#E0F7FA', iconColor: '#5AC8FA', query: 'Travel destinations' },
+    { name: 'Architecture', icon: 'city-variant-outline', color: '#EDE7F6', iconColor: '#5856D6', query: 'Modern architecture' }
+  ].map((cat, index) => (
+    <TouchableOpacity 
+      key={index} 
+      style={styles.categoryCard}
+      onPress={() => this.handleCategoryClick(cat.query)}
+    >
+      <View style={[styles.categoryIconBox, { backgroundColor: cat.color }]}>
+        <MaterialCommunityIcons name={cat.icon} size={24} color={cat.iconColor} />
+      </View>
+      <Text style={styles.categoryName}>{cat.name}</Text>
+    </TouchableOpacity>
+  ))}
+</ScrollView>
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolkitRow}>
-            {[
-              { title: 'Image Editor', desc: 'Enhance images', icon: 'wand' },
-              { title: 'Crop Image', desc: 'Crop perfect size', icon: 'crop' },
-              { title: 'Filters', desc: 'Amazing filters', icon: 'camera-iris' },
-              { title: 'Draw & Paint', desc: 'Create art', icon: 'palette-outline' },
-              { title: 'Compress', desc: 'Reduce size', icon: 'compress' },
-            ].map((tool, idx) => (
-              <TouchableOpacity 
-                key={idx} 
-                style={styles.toolkitCard}
-                onPress={() => this.showNextVersionAlert(tool.title)}
-                activeOpacity={0.8}
-              >
-                <MaterialCommunityIcons name={tool.icon} size={24} color="#007AFF" style={{ marginBottom: 8 }} />
-                <Text style={styles.toolkitTitle}>{tool.title}</Text>
-                <Text style={styles.toolkitDesc}>{tool.desc}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+
+
+
+
+
+<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolkitRow}>
+  {[
+    { title: 'Video Clips', desc: 'Pro stock footage', icon: 'video-box' },
+    { title: 'Background Music', desc: 'Royalty-free tracks', icon: 'music-note-outline' },
+    { title: 'Stickers & Gifs', desc: 'Animated elements', icon: 'sticker-emoji' },
+    { title: 'Emoji Studio', desc: 'Trending expressions', icon: 'emoticon-happy-outline' },
+    { title: 'AI Video FX', desc: 'Cinematic visual effects', icon: 'auto-fix' },
+    { title: 'Sound FX', desc: 'Dynamic audio effects', icon: 'waveform' },
+  ].map((tool, idx) => (
+    <TouchableOpacity 
+      key={idx} 
+      style={styles.toolkitCard}
+      onPress={() => this.showNextVersionAlert(tool.title)}
+      activeOpacity={0.8}
+    >
+      <MaterialCommunityIcons name={tool.icon} size={24} color="#007AFF" style={{ marginBottom: 8 }} />
+      <Text style={styles.toolkitTitle}>{tool.title}</Text>
+      <Text style={styles.toolkitDesc}>{tool.desc}</Text>
+    </TouchableOpacity>
+  ))}
+</ScrollView>
+
+
+
+
+
+
+
+
+
+
+
+
+
+{/* 5. Pro Learning & Tutorials Banner (Clickable Card) 666 */}
+<TouchableOpacity 
+  style={styles.proBannerContainer}
+  onPress={() => this.showNextVersionAlert("Navigate to Video Tutorials Page")}
+  activeOpacity={0.9}
+>
+  {/* Left Side: Text & Subtitle */}
+  <View style={styles.proBannerContent}>
+    <View style={styles.proBadge}>
+      <Ionicons name="play-circle" size={12} color="#FF9500" />
+      <Text style={styles.proBadgeText}> Masterclass</Text>
+    </View>
+    <Text style={styles.proBannerTitle}>Learn Video Editing & Creator Tips</Text>
+    <Text style={styles.proBannerSubtitle}>Watch step-by-step tutorials from top editors.</Text>
+    
+    <View style={styles.watchNowBtn}>
+      <Text style={styles.watchNowText}>Start Watching</Text>
+      <Ionicons name="arrow-forward" size={13} color="#FFF" style={{ marginLeft: 4 }} />
+    </View>
+  </View>
+
+  {/* Right Side: Professional Poster / Graphic Illustration */}
+  <View style={styles.proBannerGraphicBox}>
+    <View style={styles.playIconButton}>
+      <Ionicons name="play" size={28} color="#007AFF" />
+    </View>
+  </View>
+</TouchableOpacity>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolkitRow}>
+  {[
+    { title: 'Pro Timeline', desc: 'Multi-layer tracks', icon: 'filmstrip' },
+    { title: 'Thumbnail Studio', desc: 'Design covers', icon: 'view-dashboard-outline' },
+    { title: 'AI Magic Lab', desc: 'Smart tools', icon: 'star-shooting-outline' },
+    { title: 'FX Color Grading', desc: 'Cinematic filters', icon: 'palette-swatch-outline' },
+    { title: 'Audio Beat Sync', desc: 'Rhythm cuts', icon: 'waveform' },
+    { title: 'Kinetic Text', desc: 'Animated captions', icon: 'format-text' },
+  ].map((tool, idx) => (
+    <TouchableOpacity 
+      key={idx} 
+      style={styles.toolkitCard}
+      onPress={() => this.showNextVersionAlert(tool.title)}
+      activeOpacity={0.8}
+    >
+      <MaterialCommunityIcons name={tool.icon} size={24} color="#007AFF" style={{ marginBottom: 8 }} />
+      <Text style={styles.toolkitTitle}>{tool.title}</Text>
+      <Text style={styles.toolkitDesc}>{tool.desc}</Text>
+    </TouchableOpacity>
+  ))}
+</ScrollView>
+
+
+
+
+
+
 
           {/* 7. Trending Spotlight Section */}
           <View style={styles.sectionHeader}>
@@ -223,25 +290,65 @@ export default class HomeScreen extends Component {
             <Ionicons name="chevron-forward-outline" size={20} color="#8E8E93" />
           </TouchableOpacity>
 
-          {/* 8. Go Premium Box */}
-          <View style={styles.premiumBox}>
-            <View style={{ flex: 1 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-                <MaterialCommunityIcons name="crown-outline" size={17} color="#FFD700" style={{ marginRight: 5 }} />
-                <Text style={styles.premiumTitle}>Go Premium</Text>
-              </View>
-              <Text style={styles.premiumDesc}>No ads, unlimited downloads & tools</Text>
-            </View>
-            <TouchableOpacity 
-              style={styles.upgradeBtn}
-              onPress={() => this.showNextVersionAlert("Go Premium Upgrade")}
-            >
-              <Text style={styles.upgradeText}>Upgrade</Text>
+
+
+
+
+
+
+
+
+
+
+
+
+          {/* 7. Trending Spotlight Section */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Trending Spotlight</Text>
+            <TouchableOpacity onPress={() => this.showNextVersionAlert("Trending Spotlight View All")}>
+              <Text style={styles.viewAllText}>View All</Text>
             </TouchableOpacity>
           </View>
 
+          <TouchableOpacity 
+            style={styles.trendingCard}
+            onPress={() => this.showNextVersionAlert("Trending Spotlight Feature")}
+            activeOpacity={0.9}
+          >
+            <View style={styles.trendingContent}>
+              <View style={styles.trendingBadge}>
+                <Ionicons name="flame" size={11} color="#FF3B30" />
+                <Text style={styles.trendingBadgeText}> Hot Today</Text>
+              </View>
+              <Text style={styles.trendingTitle}>4K Ultra HD Wallpapers</Text>
+              <Text style={styles.trendingDesc}>Handpicked collections updated every single hour.</Text>
+            </View>
+            <Ionicons name="chevron-forward-outline" size={20} color="#8E8E93" />
+          </TouchableOpacity>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         </ScrollView>
       </View>
+
+
     );
   }
 }
@@ -349,4 +456,132 @@ const styles = StyleSheet.create({
     borderRadius: 10, alignItems: 'center',
   },
   upgradeText: { fontSize: 11, fontWeight: '600', color: '#FFF' },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+proBannerContainer: {
+  flexDirection: 'row',
+  backgroundColor: '#1b1b33', // प्रीमियम डार्क या आप अपना थीम कलर रख सकते हैं
+  borderRadius: 20,
+  padding: 18,
+  marginHorizontal: 16,
+  marginVertical: 12,
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.15,
+  shadowRadius: 10,
+  elevation: 5,
+},
+proBannerContent: {
+  flex: 1,
+  paddingRight: 10,
+},
+proBadge: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: 'rgba(255, 149, 0, 0.15)',
+  paddingHorizontal: 8,
+  paddingVertical: 4,
+  borderRadius: 6,
+  alignSelf: 'flex-start',
+  marginBottom: 8,
+},
+proBadgeText: {
+  fontSize: 10,
+  fontWeight: '700',
+  color: '#FF9500',
+},
+proBannerTitle: {
+  fontSize: 16,
+  fontWeight: '700',
+  color: '#FFFFFF',
+  marginBottom: 4,
+},
+proBannerSubtitle: {
+  fontSize: 12,
+  color: '#A0A0AB',
+  marginBottom: 12,
+  lineHeight: 16,
+},
+watchNowBtn: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: '#007AFF',
+  paddingHorizontal: 12,
+  paddingVertical: 6,
+  borderRadius: 8,
+  alignSelf: 'flex-start',
+},
+watchNowText: {
+  fontSize: 12,
+  fontWeight: '600',
+  color: '#FFFFFF',
+},
+proBannerGraphicBox: {
+  width: 90,
+  height: 90,
+  backgroundColor: 'rgba(0, 122, 255, 0.15)',
+  borderRadius: 16,
+  justifyContent: 'center',
+  alignItems: 'center',
+  borderWidth: 1,
+  borderColor: 'rgba(0, 122, 255, 0.3)',
+},
+playIconButton: {
+  width: 48,
+  height: 48,
+  backgroundColor: '#FFFFFF',
+  borderRadius: 24,
+  justifyContent: 'center',
+  alignItems: 'center',
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.2,
+  shadowRadius: 4,
+  elevation: 3,
+},
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 });
