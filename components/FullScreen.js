@@ -1,4 +1,3 @@
-
 import React, { Component } from 'react';
 import {
   StyleSheet,
@@ -7,160 +6,260 @@ import {
   TextInput,
   TouchableOpacity,
   StatusBar,
-  ActivityIndicator,
-  Alert,
-  Platform,
+  ScrollView,
+  Image,
   Dimensions,
-  FlatList,
-  Image
+  Platform,
+  Alert,
+  ActivityIndicator
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import Constants from 'expo-constants';
+import { Ionicons, Feather } from '@expo/vector-icons';
+import NetInfo from '@react-native-community/netinfo';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 
 const { width } = Dimensions.get('window');
 
-// Pexels API Key
-const PEXELS_KEY = Constants.expoConfig?.extra?.PEXELS_API_KEY || Constants.manifest?.extra?.PEXELS_API_KEY;
-
-// --- डमी डेटा ---
-const DUMMY_NAIL_ART_PHOTOS = [
-  { id: '1', uri: 'https://images.pexels.com/photos/7619953/pexels-photo-7619953.jpeg?auto=compress&cs=tinysrgb&w=800', largeUri: 'https://images.pexels.com/photos/7619953/pexels-photo-7619953.jpeg?auto=compress&cs=tinysrgb&w=1600' },
-  { id: '2', uri: 'https://images.pexels.com/photos/7619955/pexels-photo-7619955.jpeg?auto=compress&cs=tinysrgb&w=800', largeUri: 'https://images.pexels.com/photos/7619955/pexels-photo-7619955.jpeg?auto=compress&cs=tinysrgb&w=1600' },
-  { id: '3', uri: 'https://images.pexels.com/photos/7957072/pexels-photo-7957072.jpeg?auto=compress&cs=tinysrgb&w=800', largeUri: 'https://images.pexels.com/photos/7957072/pexels-photo-7957072.jpeg?auto=compress&cs=tinysrgb&w=1600' },
-  { id: '4', uri: 'https://images.pexels.com/photos/10298947/pexels-photo-10298947.jpeg?auto=compress&cs=tinysrgb&w=800', largeUri: 'https://images.pexels.com/photos/10298947/pexels-photo-10298947.jpeg?auto=compress&cs=tinysrgb&w=1600' },
-];
-
-const DUMMY_MOUNTAINS_PHOTOS = [
-    { id: '7', uri: 'https://images.pexels.com/photos/1666062/pexels-photo-1666062.jpeg?auto=compress&cs=tinysrgb&w=800', largeUri: 'https://images.pexels.com/photos/1666062/pexels-photo-1666062.jpeg?auto=compress&cs=tinysrgb&w=1600' },
-    { id: '8', uri: 'https://images.pexels.com/photos/327136/pexels-photo-327136.jpeg?auto=compress&cs=tinysrgb&w=800', largeUri: 'https://images.pexels.com/photos/327136/pexels-photo-327136.jpeg?auto=compress&cs=tinysrgb&w=1600' },
-];
-
-export default class FullCatogeryScreen extends Component {
+export default class ImageDisplay extends Component {
   constructor(props) {
     super(props);
-    const passedQuery = this.props.route?.params?.query || "Spring nail art";
-    
+    const query = props.route?.params?.query || 'mountain';
     this.state = {
-      searchQuery: passedQuery,
-      photoResults: [],
-      isLoading: false,
+      searchText: query,
+      activeTab: 'AI Images',
+      isLoading: true,
+      isConnected: true,
+      images: []
     };
   }
 
   componentDidMount() {
-    this.fetchImagesByKeyword(this.state.searchQuery);
+    this.checkInternetAndLoadData('AI Images');
   }
 
-  fetchImagesByKeyword = async (keyword) => {
-    this.setState({ isLoading: true, photoResults: [] });
-
-    if (!PEXELS_KEY) {
+  // इंटरनेट चेक करके कैटेगरी के हिसाब से डेटा लोड करने का फंक्शन
+  checkInternetAndLoadData = (category) => {
+    this.setState({ isLoading: true });
+    NetInfo.fetch().then(state => {
+      if (state.isConnected) {
         setTimeout(() => {
-            let dummyData = [];
-            if (keyword.toLowerCase().includes("nail")) { dummyData = DUMMY_NAIL_ART_PHOTOS; }
-            else if (keyword.toLowerCase().includes("mountain")) { dummyData = DUMMY_MOUNTAINS_PHOTOS; }
-            else { dummyData = [...DUMMY_NAIL_ART_PHOTOS, ...DUMMY_MOUNTAINS_PHOTOS]; }
-            this.setState({ photoResults: dummyData, isLoading: false });
-        }, 800);
-        return;
+          this.loadImagesByCategory(category);
+          this.setState({ isConnected: true, isLoading: false });
+        }, 500);
+      } else {
+        this.setState({ isConnected: false, isLoading: false });
+        Alert.alert(
+          "No Internet Connection",
+          "Please turn on your internet connection to view and download images.",
+          [{ text: "Retry", onPress: () => this.checkInternetAndLoadData(category) }]
+        );
+      }
+    });
+  };
+
+  // अलग-अलग कैटेगरी के अनुसार अलग-अलग तस्वीरें लोड करने का डेटा (Long, Medium, Short ratios)
+  loadImagesByCategory = (category) => {
+    let fetchedImages = [];
+
+    if (category === 'AI Images') {
+      fetchedImages = [
+        { id: 'ai-1', uri: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=600', aspectRatio: 1.7 }, // Long 19:9 ratio style
+        { id: 'ai-2', uri: 'https://images.pexels.com/photos/8386434/pexels-photo-8386434.jpeg?auto=compress&cs=tinysrgb&w=600', aspectRatio: 1.0 }, // Square / Medium ratio
+        { id: 'ai-3', uri: 'https://images.pexels.com/photos/8849295/pexels-photo-8849295.jpeg?auto=compress&cs=tinysrgb&w=600', aspectRatio: 0.75 }, // Short / Landscape ratio
+        { id: 'ai-4', uri: 'https://images.pexels.com/features/pexels-photo-8566473.jpeg?auto=compress&cs=tinysrgb&w=600' || 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=600', aspectRatio: 1.6 },
+      ];
+    } else if (category === '3D Photos') {
+      fetchedImages = [
+        { id: '3d-1', uri: 'https://images.pexels.com/photos/7887800/pexels-photo-7887800.jpeg?auto=compress&cs=tinysrgb&w=600', aspectRatio: 1.0 }, // Square
+        { id: '3d-2', uri: 'https://images.pexels.com/photos/7887851/pexels-photo-7887851.jpeg?auto=compress&cs=tinysrgb&w=600', aspectRatio: 1.8 }, // Long Portrait
+        { id: '3d-3', uri: 'https://images.pexels.com/photos/7594467/pexels-photo-7594467.jpeg?auto=compress&cs=tinysrgb&w=600', aspectRatio: 0.8 }, // Short Wide
+        { id: '3d-4', uri: 'https://images.pexels.com/photos/7887854/pexels-photo-7887854.jpeg?auto=compress&cs=tinysrgb&w=600', aspectRatio: 1.4 },
+      ];
+    } else if (category === 'Emoji') {
+      fetchedImages = [
+        { id: 'em-1', uri: 'https://images.pexels.com/photos/3761508/pexels-photo-3761508.jpeg?auto=compress&cs=tinysrgb&w=600', aspectRatio: 1.0 }, // Square
+        { id: 'em-2', uri: 'https://images.pexels.com/photos/3761515/pexels-photo-3761515.jpeg?auto=compress&cs=tinysrgb&w=600', aspectRatio: 1.5 }, // Long Portrait
+        { id: 'em-3', uri: 'https://images.pexels.com/photos/5082579/pexels-photo-5082579.jpeg?auto=compress&cs=tinysrgb&w=600', aspectRatio: 0.8 }, // Short Wide
+      ];
+    } else if (category === 'Music') {
+      fetchedImages = [
+        { id: 'm-1', uri: 'https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg?auto=compress&cs=tinysrgb&w=600', aspectRatio: 1.4 },
+        { id: 'm-2', uri: 'https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=600', aspectRatio: 1.0 },
+      ];
+    } else if (category === 'Videos') {
+      fetchedImages = [
+        { id: 'v-1', uri: 'https://images.pexels.com/photos/1117132/pexels-photo-1117132.jpeg?auto=compress&cs=tinysrgb&w=600', aspectRatio: 1.7 },
+        { id: 'v-2', uri: 'https://images.pexels.com/photos/2247179/pexels-photo-2247179.jpeg?auto=compress&cs=tinysrgb&w=600', aspectRatio: 0.8 },
+      ];
+    }
+
+    this.setState({ images: fetchedImages });
+  };
+
+  // कैटेगरी बदलने पर सीधे उसी पेज पर डेटा लोड करना
+  handleTabChange = (tabName) => {
+    this.setState({ activeTab: tabName });
+    this.checkInternetAndLoadData(tabName);
+  };
+
+  // गैलरी में इमेज डाउनलोड करने का लॉजिक
+  handleDownload = async (item) => {
+    if (!this.state.isConnected) {
+      Alert.alert("Network Error", "No internet connection. Cannot download image.");
+      return;
     }
 
     try {
-      const response = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(keyword)}&per_page=20`, {
-        headers: { Authorization: PEXELS_KEY },
-      });
-      const json = await response.json();
+      const permission = await MediaLibrary.requestPermissionsAsync();
+      if (!permission.granted) {
+        Alert.alert("Permission Required", "Please allow storage permissions to save images to your gallery.");
+        return;
+      }
+
+      Alert.alert("Downloading", "Saving image to your device gallery...");
+
+      const filename = item.uri.split('/').pop().split('?')[0] + '.jpg';
+      const fileUri = FileSystem.documentDirectory + filename;
+
+      const downloadRes = await FileSystem.downloadAsync(item.uri, fileUri);
       
-      if (json && json.photos) {
-        const formattedPhotos = json.photos.map(photo => ({
-          uri: photo.src.medium,
-          largeUri: photo.src.large2x || photo.src.large,
-          id: String(photo.id),
-        }));
-        this.setState({ photoResults: formattedPhotos, isLoading: false });
+      if (downloadRes.status === 200) {
+        const asset = await MediaLibrary.createAssetAsync(downloadRes.uri);
+        await MediaLibrary.createAlbumAsync("WallpaperApp", asset, false);
+        
+        Alert.alert("Success", "Image successfully downloaded and saved to your Gallery!");
       } else {
-        this.setState({ photoResults: [], isLoading: false });
+        Alert.alert("Error", "Failed to download the image. Please try again.");
       }
     } catch (error) {
-      Alert.alert("Error", "Could not load images. Please try again.");
-      this.setState({ isLoading: false });
+      console.log(error);
+      Alert.alert("Error", "Something went wrong during download.");
     }
   };
-
-  handleNewSearch = () => {
-    if (!this.state.searchQuery.trim()) {
-      Alert.alert("Warning", "Please enter a search keyword.");
-      return;
-    }
-    this.fetchImagesByKeyword(this.state.searchQuery);
-  };
-
-  // यहाँ इमेज पर क्लिक होने पर 'ImageDisplay' पेज पर डेटा भेजा जा रहा है
-  renderItem = ({ item }) => (
-    <TouchableOpacity 
-      style={styles.imageCard} 
-      onPress={() => this.props.navigation.navigate('ImageDisplay', { photo: item })}
-      activeOpacity={0.9}
-    >
-      <Image source={{ uri: item.uri }} style={styles.imageStyle} resizeMode="cover" />
-    </TouchableOpacity>
-  );
 
   render() {
+    const columnWidth = (width - 32) / 2;
+    const leftColumn = [];
+    const rightColumn = [];
+
+    this.state.images.forEach((img, index) => {
+      if (index % 2 === 0) {
+        leftColumn.push(img);
+      } else {
+        rightColumn.push(img);
+      }
+    });
+
     return (
       <View style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+        <StatusBar barStyle="light-content" backgroundColor="#000000" />
 
-        {/* Header */}
-        <View style={styles.headerWrapper}>
+        {/* 1. Header with Search & Back Button */}
+        <View style={styles.header}>
           <TouchableOpacity 
-              style={styles.backButton}
-              onPress={() => this.props.navigation.goBack()}
+            style={styles.backBtn} 
+            onPress={() => this.props.navigation.goBack()}
           >
-              <Ionicons name="arrow-back" size={22} color="#212121" />
+            <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
           </TouchableOpacity>
 
           <View style={styles.searchBox}>
-              <TextInput
-                  style={styles.searchInput}
-                  placeholder="Search photos..."
-                  placeholderTextColor="#9E9E9E"
-                  value={this.state.searchQuery}
-                  onChangeText={(text) => this.setState({ searchQuery: text })}
-                  onSubmitEditing={this.handleNewSearch}
-              />
-              <TouchableOpacity onPress={this.handleNewSearch} style={styles.searchIconBtn}>
-                  <Ionicons name="search" size={18} color="#9E9E9E" />
-              </TouchableOpacity>
+            <Ionicons name="search-outline" size={18} color="#8E8E93" style={{ marginRight: 8 }} />
+            <TextInput
+              style={styles.searchInput}
+              value={this.state.searchText}
+              onChangeText={(text) => this.setState({ searchText: text })}
+              placeholder="Search..."
+              placeholderTextColor="#8E8E93"
+              onSubmitEditing={() => this.checkInternetAndLoadData(this.state.activeTab)}
+            />
+            <TouchableOpacity onPress={() => this.setState({ searchText: '' })}>
+              <Ionicons name="close-circle" size={18} color="#8E8E93" />
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* Loading */}
-        {this.state.isLoading && (
-          <View style={styles.loaderContainer}>
-            <ActivityIndicator size="large" color="#673AB7" />
-            <Text style={styles.loadingText}>Searching amazing photos...</Text>
+        {/* 2. Super Smooth Horizontal Categories */}
+        <View style={styles.tabContainer}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            nestedScrollEnabled={true}
+            contentContainerStyle={styles.tabScroll}
+          >
+            {['AI Images', '3D Photos', 'Music', 'Videos', 'Emoji'].map((tab, idx) => (
+              <TouchableOpacity 
+                key={idx} 
+                activeOpacity={0.7}
+                style={[styles.tabItem, this.state.activeTab === tab && styles.activeTabItem]}
+                onPress={() => this.handleTabChange(tab)}
+              >
+                <Text style={[styles.tabText, this.state.activeTab === tab && styles.activeTabText]}>
+                  {tab}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* 3. Main Content Area */}
+        {this.state.isLoading ? (
+          <View style={styles.centerContainer}>
+            <ActivityIndicator size="large" color="#007AFF" />
+            <Text style={styles.loadingText}>Loading {this.state.activeTab}...</Text>
           </View>
-        )}
+        ) : !this.state.isConnected ? (
+          <View style={styles.centerContainer}>
+            <Ionicons name="cloud-offline-outline" size={60} color="#8E8E93" />
+            <Text style={styles.errorTitle}>Connection Lost</Text>
+            <Text style={styles.errorDesc}>Please check your internet and try again.</Text>
+            <TouchableOpacity style={styles.retryBtn} onPress={() => this.checkInternetAndLoadData(this.state.activeTab)}>
+              <Text style={styles.retryText}>Try Again</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <ScrollView 
+            showsVerticalScrollIndicator={false} 
+            contentContainerStyle={styles.gridScroll}
+          >
+            <View style={styles.row}>
+              {/* Left Column */}
+              <View style={styles.column}>
+                {leftColumn.map((item) => {
+                  const cardHeight = columnWidth * item.aspectRatio;
+                  return (
+                    <View key={item.id} style={[styles.imageCard, { height: cardHeight }]}>
+                      <Image source={{ uri: item.uri }} style={styles.uploadedImage} resizeMode="cover" />
+                      <TouchableOpacity 
+                        style={styles.downloadIconBtn} 
+                        onPress={() => this.handleDownload(item)}
+                      >
+                        <Feather name="download" size={14} color="#FFFFFF" />
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })}
+              </View>
 
-        {/* Empty State */}
-        {!this.state.isLoading && this.state.photoResults.length === 0 && (
-            <View style={styles.emptyContainer}>
-                <Ionicons name="images-outline" size={50} color="#BDBDBD" />
-                <Text style={styles.emptyText}>No images found for "{this.state.searchQuery}".</Text>
+              {/* Right Column */}
+              <View style={styles.column}>
+                {rightColumn.map((item) => {
+                  const cardHeight = columnWidth * item.aspectRatio;
+                  return (
+                    <View key={item.id} style={[styles.imageCard, { height: cardHeight }]}>
+                      <Image source={{ uri: item.uri }} style={styles.uploadedImage} resizeMode="cover" />
+                      <TouchableOpacity 
+                        style={styles.downloadIconBtn} 
+                        onPress={() => this.handleDownload(item)}
+                      >
+                        <Feather name="download" size={14} color="#FFFFFF" />
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })}
+              </View>
             </View>
-        )}
-
-        {/* Grid List */}
-        {!this.state.isLoading && this.state.photoResults.length > 0 && (
-            <FlatList
-                data={this.state.photoResults}
-                renderItem={this.renderItem}
-                keyExtractor={(item) => item.id}
-                numColumns={2}
-                contentContainerStyle={styles.listContainer}
-                showsVerticalScrollIndicator={false}
-            />
+          </ScrollView>
         )}
       </View>
     );
@@ -168,44 +267,45 @@ export default class FullCatogeryScreen extends Component {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8F9FA' },
-  headerWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 45,
-    paddingBottom: 15,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
+  container: { flex: 1, backgroundColor: '#000000' },
+  header: {
+    flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 48,
+    paddingBottom: 12, backgroundColor: '#000000',
   },
-  backButton: {
-    width: 42, height: 42,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-  },
+  backBtn: { marginRight: 10, padding: 2 },
   searchBox: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    borderRadius: 12,
-    height: 42,
-    paddingHorizontal: 12,
+    flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: '#1C1C1E',
+    borderRadius: 22, paddingHorizontal: 14, height: 40,
   },
-  searchInput: { flex: 1, fontSize: 14, color: '#212121' },
-  searchIconBtn: { padding: 5 },
-  loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { color: '#757575', marginTop: 10, fontSize: 13 },
-  listContainer: { paddingHorizontal: 10, paddingTop: 10, paddingBottom: 20 },
+  searchInput: { flex: 1, fontSize: 14, color: '#FFFFFF' },
+  
+  tabContainer: { backgroundColor: '#000000', borderBottomWidth: 0.5, borderBottomColor: '#2C2C2E' },
+  tabScroll: { paddingHorizontal: 12, paddingVertical: 10 },
+  tabItem: { paddingHorizontal: 16, paddingVertical: 8, marginRight: 10, borderRadius: 20, backgroundColor: '#1C1C1E' },
+  activeTabItem: { backgroundColor: '#3A3A3C' },
+  tabText: { fontSize: 13, color: '#8E8E93', fontWeight: '500' },
+  activeTabText: { color: '#FFFFFF', fontWeight: '700' },
+
+  centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 },
+  loadingText: { color: '#8E8E93', fontSize: 13, marginTop: 12 },
+  errorTitle: { color: '#FFFFFF', fontSize: 18, fontWeight: '700', marginTop: 12, marginBottom: 4 },
+  errorDesc: { color: '#8E8E93', fontSize: 13, textAlign: 'center', marginBottom: 20 },
+  retryBtn: { backgroundColor: '#007AFF', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 12 },
+  retryText: { color: '#FFFFFF', fontSize: 14, fontWeight: '600' },
+
+  gridScroll: { paddingHorizontal: 10, paddingTop: 12, paddingBottom: 40 },
+  row: { flexDirection: 'row', justifyContent: 'space-between' },
+  column: { width: '48.5%' },
   imageCard: {
-    flex: 1, margin: 6, height: 220,
-    borderRadius: 14, backgroundColor: '#E0E0E0', overflow: 'hidden',
+    width: '100%', borderRadius: 14, overflow: 'hidden', marginBottom: 10,
+    backgroundColor: '#1C1C1E', position: 'relative',
   },
-  imageStyle: { width: '100%', height: '100%' },
-  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 40 },
-  emptyText: { fontSize: 15, color: '#424242', textAlign: 'center', marginTop: 15, fontWeight: '500' },
+  uploadedImage: { width: '100%', height: '100%' },
+  downloadIconBtn: {
+    position: 'absolute', bottom: 10, right: 10,
+    width: 30, height: 30, borderRadius: 15, backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    justifyContent: 'center', alignItems: 'center',
+    borderWidth: 0.5, borderColor: 'rgba(255,255,255,0.2)'
+  }
 });

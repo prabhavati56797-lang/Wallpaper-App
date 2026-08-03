@@ -1,252 +1,352 @@
-import React, { useState } from 'react';
+import React, { Component } from 'react';
 import {
   StyleSheet,
   Text,
   View,
-  Image,
   TextInput,
   TouchableOpacity,
-  ScrollView,
   StatusBar,
-  Alert,
-  SafeAreaView,
+  ScrollView,
+  Image,
   Dimensions,
-  ImageBackground,
-  Platform
+  Platform,
+  Alert
 } from 'react-native';
-import { Ionicons, Feather, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
-// --- डमी डेटा (Dummy Data) ---
-const categories = [
-  { id: '1', title: 'Nature', icon: 'leaf', lib: MaterialCommunityIcons, color: '#4CAF50', uri: 'https://images.pexels.com/photos/355465/pexels-photo-355465.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2' },
-  { id: '2', title: 'Abstract', icon: 'shape-triangle-plus', lib: MaterialCommunityIcons, color: '#9C27B0', uri: 'https://images.pexels.com/photos/2132180/pexels-photo-2132180.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2' },
-  { id: '3', title: 'Technology', icon: 'monitor', lib: Feather, color: '#2196F3', uri: 'https://images.pexels.com/photos/2582937/pexels-photo-2582937.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2' },
-  { id: '4', title: 'Animals', icon: 'paw', lib: FontAwesome5, color: '#FF9800', uri: 'https://images.pexels.com/photos/145939/pexels-photo-145939.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2' },
-  { id: '5', title: 'Travel', icon: 'airplane', lib: Ionicons, color: '#03A9F4', uri: 'https://images.pexels.com/photos/3881104/pexels-photo-3881104.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2' },
-  { id: '6', title: 'Architecture', icon: 'city-variant-outline', lib: MaterialCommunityIcons, color: '#673AB7', uri: 'https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2' },
-];
+export default class HomeScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { searchText: '' };
+  }
 
-const popularSearches = [
-  { id: '1', title: 'Mountains', uri: 'https://images.pexels.com/photos/355465/pexels-photo-355465.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2' },
-  { id: '2', title: 'City Lights', uri: 'https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2' },
-  { id: '3', title: 'Space', uri: 'https://images.pexels.com/photos/2150/sky-space-dark-galaxy.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2' },
-  { id: '4', title: 'Minimal', uri: 'https://images.pexels.com/photos/2132180/pexels-photo-2132180.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2' },
-];
-
-// --- मुख्य HomeScreen कंपोनेंट ---
-export default function HomeScreen({ navigation }) {
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const showFeatureAlert = (featureName) => {
-    Alert.alert(
-      "🚀 Coming Soon",
-      `"${featureName}" फीचर पर काम चल रहा है! यह ऐप के आगामी संस्करण में उपलब्ध होगा।`,
-      [{ text: "ठीक है", style: "default" }]
-    );
+  // कैटेगरी और सर्च के लिए नेविगेशन (अगले पेज पर ले जाने के लिए)
+  handleCategoryClick = (query) => {
+    this.props.navigation.navigate('FullCatogery', { query: query });
   };
 
-  // --- कैटेगरीज पर क्लिक करने पर ImageDisplay पेज पर भेजना ---
-  const renderCategory = (item) => {
-    const IconLib = item.lib;
+  handleSearchSubmit = () => {
+    if (!this.state.searchText.trim()) {
+      Alert.alert("Warning", "Please enter a search keyword.");
+      return;
+    }
+    this.props.navigation.navigate('FullCatogery', { query: this.state.searchText });
+  };
+
+  // अनयूज्ड बटन्स और नए फीचर्स के लिए "Next Version" अलर्ट
+  showNextVersionAlert = (featureName) => {
+    Alert.alert("Coming Soon", `${featureName} will be available in the next version!`);
+  };
+
+  render() {
     return (
-      <TouchableOpacity
-        key={item.id}
-        style={styles.categoryItem}
-        onPress={() => {
-          navigation.navigate('ImageDisplay', {
-            photo: {
-              title: item.title,
-              src: { original: item.uri }
-            }
-          });
-        }}
-      >
-        <View style={[styles.iconContainer, { backgroundColor: `${item.color}15` }]}>
-          <IconLib name={item.icon} size={28} color={item.color} />
-        </View>
-        <Text style={styles.categoryText}>{item.title}</Text>
-      </TouchableOpacity>
-    );
-  };
+      <View style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="#F2F2F7" />
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F8F9FA" />
-
-      <ScrollView showsVerticalScrollIndicator={false}>
-        
-        {/* 1. Header Section */}
+        {/* 1. Top Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.menuIcon} onPress={() => showFeatureAlert("मेनु")} >
-            <Feather name="menu" size={24} color="#212121" />
+          <TouchableOpacity style={styles.iconBtn} onPress={() => this.showNextVersionAlert("Menu")}>
+            <Ionicons name="menu-outline" size={24} color="#1C1C1E" />
           </TouchableOpacity>
-          <View style={styles.titleWrapper}>
-            <Text style={styles.headerTitle}>Image<Text style={styles.headerTitleBold}>Search</Text></Text>
-          </View>
-          <View style={styles.headerIcons}>
-            <TouchableOpacity style={styles.iconButton} onPress={() => showFeatureAlert("नोटिफिकेशन फाइल")}>
-              <Feather name="bell" size={22} color="#212121" />
+
+          <Text style={styles.logoText}>Image<Text style={{ color: '#007AFF' }}>Search</Text></Text>
+
+          <View style={styles.headerRight}>
+            <TouchableOpacity style={[styles.iconBtn, { marginRight: 8 }]} onPress={() => this.showNextVersionAlert("Notifications")}>
+              <Ionicons name="notifications-outline" size={21} color="#1C1C1E" />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.profileButton} onPress={() => showFeatureAlert("3D प्रोफाइल मेनू")}>
-              <Image source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }} style={styles.profileImage} />
+            <TouchableOpacity onPress={() => this.showNextVersionAlert("Profile")}>
+              <Image 
+                source={{ uri: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=200' }} 
+                style={styles.profileImg} 
+              />
             </TouchableOpacity>
           </View>
         </View>
 
-        <Text style={styles.subtitle}>Search anything, discover everything</Text>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+          
+          <Text style={styles.subTitle}>Search anything, discover everything</Text>
 
-        {/* 3. Search Bar Section */}
-        <View style={styles.searchWrapper}>
-          <View style={styles.searchContainer}>
-            <Ionicons name="search" size={20} color="#9E9E9E" style={styles.searchIcon} />
-            <TextInput
-              placeholder="Search images, wallpapers, categories..."
-              placeholderTextColor="#9E9E9E"
-              style={styles.searchInput}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              onSubmitEditing={() => {
-                if(searchQuery) {
-                  navigation.navigate('ImageDisplay', {
-                    photo: { title: searchQuery, src: { original: 'https://images.pexels.com/photos/355465/pexels-photo-355465.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2' } }
-                  });
-                }
-              }}
-            />
+          {/* 2. Search Bar & Lightweight AI Sparkle Button */}
+          <View style={styles.searchRow}>
+            <View style={styles.searchBox}>
+              <Ionicons name="search-outline" size={18} color="#8E8E93" style={{ marginRight: 8 }} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search images, wallpapers..."
+                placeholderTextColor="#8E8E93"
+                value={this.state.searchText}
+                onChangeText={(text) => this.setState({ searchText: text })}
+                onSubmitEditing={this.handleSearchSubmit}
+              />
+            </View>
+            <TouchableOpacity style={styles.sparkleBtn} onPress={() => this.showNextVersionAlert("AI Gen/Sparkle feature")}>
+              <MaterialCommunityIcons name="star-four-points" size={20} color="#FFF" />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.aiButton} onPress={() => showFeatureAlert("AI Search")}>
-            <MaterialCommunityIcons name="star-four-points" size={22} color="#FFF" />
-          </TouchableOpacity>
-        </View>
 
-        {/* 4. Explore Categories Section */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Explore Categories</Text>
-          <TouchableOpacity onPress={() => Alert.alert("View All", "Loading all categories...")}>
-            <Text style={styles.viewAll}>View All <Ionicons name="chevron-forward" size={12} /></Text>
-          </TouchableOpacity>
-        </View>
+          {/* 3. Explore Categories */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Explore Categories</Text>
+            <TouchableOpacity onPress={() => this.handleCategoryClick("All Categories")}>
+              <Text style={styles.viewAllText}>View All &gt;</Text>
+            </TouchableOpacity>
+          </View>
 
-        <View style={styles.categoriesGrid}>
-          {categories.map(renderCategory)}
-        </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesRow}>
+            {[
+              { name: 'Nature', icon: 'leaf-outline', color: '#E8F5E9', iconColor: '#34C759', query: 'Nature landscape' },
+              { name: 'Abstract', icon: 'color-palette-outline', color: '#F3E5F5', iconColor: '#AF52DE', query: 'Abstract art' },
+              { name: 'Technology', icon: 'laptop-outline', color: '#E3F2FD', iconColor: '#007AFF', query: 'Technology futuristic' },
+              { name: 'Animals', icon: 'paw-outline', color: '#FFF3E0', iconColor: '#FF9500', query: 'Cute animals' },
+              { name: 'Travel', icon: 'airplane-outline', color: '#E0F7FA', iconColor: '#5AC8FA', query: 'Travel destinations' },
+              { name: 'Architecture', icon: 'business-outline', color: '#EDE7F6', iconColor: '#5856D6', query: 'Modern architecture' }
+            ].map((cat, index) => (
+              <TouchableOpacity 
+                key={index} 
+                style={styles.categoryCard}
+                onPress={() => this.handleCategoryClick(cat.query)}
+              >
+                <View style={[styles.categoryIconBox, { backgroundColor: cat.color }]}>
+                  <Ionicons name={cat.icon} size={24} color={cat.iconColor} />
+                </View>
+                <Text style={styles.categoryName}>{cat.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
 
-        {/* 5. Featured Card Section */}
-        <TouchableOpacity
-          style={styles.featuredCard}
-          onPress={() => {
-            navigation.navigate('ImageDisplay', {
-              photo: {
-                title: 'Featured Wallpaper',
-                src: { original: 'https://images.pexels.com/photos/169647/pexels-photo-169647.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2' }
-              }
-            });
-          }}
-        >
-          <View style={styles.featuredTextContent}>
-             <View style={styles.featuredBadge}>
-                <Ionicons name="star-outline" size={12} color="#7B1FA2" />
+          {/* 4. NEW: Professional Circular Scrollable V2 Feature Hub (Music, HD Videos, GIFs, etc.) */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Version 2.0 Hub (Coming Soon)</Text>
+            <Text style={styles.badgeV2}>NEW</Text>
+          </View>
+
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.circularRow}>
+            {[
+              { name: 'HD Videos', icon: 'videocam-outline', bg: '#E3F2FD', color: '#007AFF' },
+              { name: 'Music Hub', icon: 'musical-notes-outline', bg: '#FCE4EC', color: '#E91E63' },
+              { name: 'AI Generator', icon: 'color-wand-outline', bg: '#F3E5F5', color: '#9C27B0' },
+              { name: '3D Avatars', icon: 'cube-outline', bg: '#E8F5E9', color: '#4CAF50' },
+              { name: 'GIFs & Memes', icon: 'happy-outline', bg: '#FFFDE7', color: '#FBC02D' },
+              { name: 'Stickers', icon: 'images-outline', bg: '#FFF3E0', color: '#FF9800' }
+            ].map((item, idx) => (
+              <TouchableOpacity 
+                key={idx} 
+                style={styles.circularCard}
+                onPress={() => this.showNextVersionAlert(`${item.name} Feature`)}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.circularIconCircle, { backgroundColor: item.bg }]}>
+                  <Ionicons name={item.icon} size={26} color={item.color} />
+                </View>
+                <Text style={styles.circularText} numberOfLines={1}>{item.name}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          {/* 5. Featured Banner */}
+          <View style={styles.bannerContainer}>
+            <View style={styles.bannerTextContent}>
+              <View style={styles.featuredBadge}>
+                <Ionicons name="star" size={10} color="#FF9500" />
                 <Text style={styles.featuredBadgeText}> Featured</Text>
-             </View>
-            <Text style={styles.featuredTitle}>Discover High Quality Images</Text>
-            <Text style={styles.featuredDesc}>Millions of stunning images at your fingertips.</Text>
-            <View style={styles.exploreButton}>
-                <Text style={styles.exploreButtonText}>Explore Now</Text>
-                <Ionicons name="chevron-forward" size={16} color="#FFF" style={{marginLeft: 5}}/>
+              </View>
+              <Text style={styles.bannerTitle}>Discover High Quality Images</Text>
+              <Text style={styles.bannerSubtitle}>Millions of stunning images at your fingertips.</Text>
+              
+              <TouchableOpacity 
+                style={styles.exploreNowBtn}
+                onPress={() => this.handleCategoryClick("High Quality HD")}
+              >
+                <Text style={styles.exploreNowText}>Explore Now</Text>
+                <Ionicons name="chevron-forward" size={13} color="#FFF" style={{ marginLeft: 2 }} />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.bannerGraphic}>
+              <Feather name="feather" size={60} color="rgba(0,122,255,0.12)" style={{ transform: [{ rotate: '-45deg' }] }} />
             </View>
           </View>
-          <View style={styles.featuredImageContainer}>
-            <Image
-              source={{ uri: 'https://cdn3d.iconscout.com/3d/premium/thumb/abstract-gradient-cube-on-pedestal-10660194-8583656.png' }}
-              style={styles.featuredImage}
-              resizeMode="contain"
-            />
-          </View>
-        </TouchableOpacity>
 
-        {/* 6. Popular Searches Section */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}><MaterialCommunityIcons name="fire" size={18} color="#FF5722" /> Popular Searches</Text>
-        </View>
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.popularList}
-        >
-          {popularSearches.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.popularItem}
-              onPress={() => {
-                navigation.navigate('ImageDisplay', {
-                  photo: {
-                    title: item.title,
-                    src: { original: item.uri }
-                  }
-                });
-              }}
-            >
-              <ImageBackground
-                source={{ uri: item.uri }}
-                style={styles.popularImage}
-                imageStyle={{ borderRadius: 12 }}
-              >
-                <View style={styles.popularSearchIconBg}>
-                   <Ionicons name="search" size={16} color="#FFF" />
-                </View>
-              </ImageBackground>
-              <Text style={styles.popularText}>{item.title}</Text>
+          {/* 6. Editor's Toolkit */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Editor's Toolkit</Text>
+            <TouchableOpacity onPress={() => this.showNextVersionAlert("Editor's Toolkit View All")}>
+              <Text style={styles.viewAllText}>View All</Text>
             </TouchableOpacity>
-          ))}
-        </ScrollView>
-        
-        <View style={{height: 30}} />
+          </View>
 
-      </ScrollView>
-    </SafeAreaView>
-  );
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolkitRow}>
+            {[
+              { title: 'Image Editor', desc: 'Enhance images', icon: 'wand' },
+              { title: 'Crop Image', desc: 'Crop perfect size', icon: 'crop' },
+              { title: 'Filters', desc: 'Amazing filters', icon: 'camera-iris' },
+              { title: 'Draw & Paint', desc: 'Create art', icon: 'palette-outline' },
+              { title: 'Compress', desc: 'Reduce size', icon: 'compress' },
+            ].map((tool, idx) => (
+              <TouchableOpacity 
+                key={idx} 
+                style={styles.toolkitCard}
+                onPress={() => this.showNextVersionAlert(tool.title)}
+                activeOpacity={0.8}
+              >
+                <MaterialCommunityIcons name={tool.icon} size={24} color="#007AFF" style={{ marginBottom: 8 }} />
+                <Text style={styles.toolkitTitle}>{tool.title}</Text>
+                <Text style={styles.toolkitDesc}>{tool.desc}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          {/* 7. Trending Spotlight Section */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Trending Spotlight</Text>
+            <TouchableOpacity onPress={() => this.showNextVersionAlert("Trending Spotlight View All")}>
+              <Text style={styles.viewAllText}>View All</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity 
+            style={styles.trendingCard}
+            onPress={() => this.showNextVersionAlert("Trending Spotlight Feature")}
+            activeOpacity={0.9}
+          >
+            <View style={styles.trendingContent}>
+              <View style={styles.trendingBadge}>
+                <Ionicons name="flame" size={11} color="#FF3B30" />
+                <Text style={styles.trendingBadgeText}> Hot Today</Text>
+              </View>
+              <Text style={styles.trendingTitle}>4K Ultra HD Wallpapers</Text>
+              <Text style={styles.trendingDesc}>Handpicked collections updated every single hour.</Text>
+            </View>
+            <Ionicons name="chevron-forward-outline" size={20} color="#8E8E93" />
+          </TouchableOpacity>
+
+          {/* 8. Go Premium Box */}
+          <View style={styles.premiumBox}>
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                <MaterialCommunityIcons name="crown-outline" size={17} color="#FFD700" style={{ marginRight: 5 }} />
+                <Text style={styles.premiumTitle}>Go Premium</Text>
+              </View>
+              <Text style={styles.premiumDesc}>No ads, unlimited downloads & tools</Text>
+            </View>
+            <TouchableOpacity 
+              style={styles.upgradeBtn}
+              onPress={() => this.showNextVersionAlert("Go Premium Upgrade")}
+            >
+              <Text style={styles.upgradeText}>Upgrade</Text>
+            </TouchableOpacity>
+          </View>
+
+        </ScrollView>
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8F9FA' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 10, paddingBottom: 5 },
-  menuIcon: { padding: 5 },
-  titleWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { fontSize: 22, color: '#212121', fontWeight: '400' },
-  headerTitleBold: { fontWeight: '700', color: '#3F51B5' },
-  headerIcons: { flexDirection: 'row', alignItems: 'center' },
-  iconButton: { padding: 8, marginRight: 5 },
-  profileButton: { marginLeft: 5, padding: 2, borderWidth: 2, borderColor: '#E0E0E0', borderRadius: 22 },
-  profileImage: { width: 38, height: 38, borderRadius: 19 },
-  subtitle: { fontSize: 14, color: '#757575', textAlign: 'center', marginTop: 5, marginBottom: 15 },
-  searchWrapper: { flexDirection: 'row', paddingHorizontal: 20, marginBottom: 25 },
-  searchContainer: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 15, height: 55, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 3 },
-  searchIcon: { paddingHorizontal: 15 },
-  searchInput: { flex: 1, fontSize: 14, color: '#212121' },
-  aiButton: { backgroundColor: '#673AB7', width: 55, height: 55, borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginLeft: 15 },
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 15 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#212121', flexDirection: 'row', alignItems: 'center' },
-  viewAll: { fontSize: 13, color: '#673AB7', fontWeight: '600' },
-  categoriesGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 15, marginBottom: 25 },
-  categoryItem: { width: (width - 30) / 4, alignItems: 'center', marginBottom: 15 },
-  iconContainer: { width: 60, height: 60, borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
-  categoryText: { fontSize: 11, color: '#424242', fontWeight: '600', textAlign: 'center' },
-  featuredCard: { backgroundColor: '#E3F2FD', borderRadius: 20, flexDirection: 'row', padding: 20, marginHorizontal: 20, marginBottom: 30, height: 180 },
-  featuredTextContent: { flex: 1, justifyContent: 'space-around' },
-  featuredBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF', alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 10, marginBottom: 5 },
-  featuredBadgeText: { color: '#7B1FA2', fontSize: 10, fontWeight: '700' },
-  featuredTitle: { fontSize: 18, fontWeight: '800', color: '#1A237E', lineHeight: 24 },
-  featuredDesc: { fontSize: 12, color: '#303F9F', marginTop: 5, marginBottom: 10 },
-  exploreButton: { backgroundColor: '#673AB7', paddingVertical: 8, paddingHorizontal: 15, borderRadius: 15, flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start' },
-  exploreButtonText: { color: '#FFF', fontSize: 12, fontWeight: '700' },
-  featuredImageContainer: { width: '40%', justifyContent: 'center', alignItems: 'center' },
-  featuredImage: { width: '150%', height: '150%', marginTop: -20, marginRight: -40 },
-  popularList: { paddingLeft: 20, paddingRight: 10 },
-  popularItem: { marginRight: 15, width: width * 0.35 },
-  popularImage: { height: 140, width: '100%', justifyContent: 'flex-end', alignItems: 'flex-end', padding: 8 },
-  popularSearchIconBg: { backgroundColor: 'rgba(0,0,0,0.4)', padding: 6, borderRadius: 20 },
-  popularText: { fontSize: 13, fontWeight: '600', color: '#424242', marginTop: 6, textAlign: 'center' }
+  container: { flex: 1, backgroundColor: '#F2F2F7' },
+  header: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 20, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 48,
+    paddingBottom: 14, backgroundColor: 'rgba(255,255,255,0.92)',
+    borderBottomWidth: 0.5, borderBottomColor: '#C6C6C8'
+  },
+  logoText: { fontSize: 19, fontWeight: '700', color: '#1C1C1E', letterSpacing: -0.4 },
+  headerRight: { flexDirection: 'row', alignItems: 'center' },
+  iconBtn: { padding: 4 },
+  profileImg: { width: 30, height: 30, borderRadius: 15 },
+  scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
+  subTitle: { fontSize: 13, color: '#8E8E93', marginTop: 14, marginBottom: 14, fontWeight: '400' },
+  searchRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 22 },
+  searchBox: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: '#E3E3E8',
+    borderRadius: 12, paddingHorizontal: 12, height: 44,
+  },
+  searchInput: { flex: 1, fontSize: 13, color: '#1C1C1E' },
+  sparkleBtn: {
+    width: 44, height: 44, backgroundColor: '#007AFF', borderRadius: 12,
+    justifyContent: 'center', alignItems: 'center', marginLeft: 10,
+    shadowColor: '#007AFF', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.25, shadowRadius: 5, elevation: 3
+  },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, marginTop: 4 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#1C1C1E', letterSpacing: -0.3 },
+  viewAllText: { fontSize: 12, color: '#007AFF', fontWeight: '500' },
+  badgeV2: { fontSize: 9, fontWeight: '700', color: '#007AFF', backgroundColor: '#E3F2FD', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 },
+  
+  categoriesRow: { paddingBottom: 8 },
+  categoryCard: { alignItems: 'center', marginRight: 15, width: 70 },
+  categoryIconBox: { 
+    width: 56, height: 56, borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginBottom: 6,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 3, elevation: 1
+  },
+  categoryName: { fontSize: 11, color: '#3A3A3C', fontWeight: '500', textAlign: 'center' },
+
+  // New Circular Scrollable V2 Styles
+  circularRow: { paddingBottom: 10 },
+  circularCard: { alignItems: 'center', marginRight: 16, width: 72 },
+  circularIconCircle: {
+    width: 62, height: 62, borderRadius: 31, justifyContent: 'center', alignItems: 'center', marginBottom: 6,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2,
+    borderWidth: 0.5, borderColor: 'rgba(0,0,0,0.04)'
+  },
+  circularText: { fontSize: 11, color: '#3A3A3C', fontWeight: '600', textAlign: 'center' },
+
+  bannerContainer: {
+    backgroundColor: '#FFFFFF', borderRadius: 20, padding: 18, flexDirection: 'row',
+    alignItems: 'center', marginTop: 12, marginBottom: 18, overflow: 'hidden', position: 'relative',
+    borderWidth: 0.5, borderColor: '#E5E5EA',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2
+  },
+  bannerTextContent: { flex: 1, zIndex: 2 },
+  featuredBadge: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF8E1', alignSelf: 'flex-start',
+    paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6, marginBottom: 8,
+  },
+  featuredBadgeText: { fontSize: 9, color: '#B7791F', fontWeight: '700' },
+  bannerTitle: { fontSize: 16, fontWeight: '700', color: '#1C1C1E', marginBottom: 4, letterSpacing: -0.3 },
+  bannerSubtitle: { fontSize: 11, color: '#8E8E93', marginBottom: 12 },
+  exploreNowBtn: {
+    flexDirection: 'row', backgroundColor: '#007AFF', paddingVertical: 7,
+    paddingHorizontal: 13, borderRadius: 12, alignSelf: 'flex-start', alignItems: 'center',
+    shadowColor: '#007AFF', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3, elevation: 2
+  },
+  exploreNowText: { color: '#FFF', fontSize: 11, fontWeight: '600' },
+  bannerGraphic: { position: 'absolute', right: -5, bottom: -5 },
+  toolkitRow: { paddingBottom: 8 },
+  toolkitCard: {
+    backgroundColor: '#FFFFFF', width: 105, padding: 12, borderRadius: 16,
+    marginRight: 10, borderWidth: 0.5, borderColor: '#E5E5EA', alignItems: 'center',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.03, shadowRadius: 3, elevation: 1
+  },
+  toolkitTitle: { fontSize: 11, fontWeight: '600', color: '#1C1C1E', marginBottom: 2, textAlign: 'center' },
+  toolkitDesc: { fontSize: 9, color: '#8E8E93', textAlign: 'center' },
+  trendingCard: {
+    backgroundColor: '#FFFFFF', borderRadius: 18, padding: 16, flexDirection: 'row',
+    alignItems: 'center', marginTop: 4, marginBottom: 14,
+    borderWidth: 0.5, borderColor: '#E5E5EA',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1
+  },
+  trendingContent: { flex: 1 },
+  trendingBadge: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFEBEE', alignSelf: 'flex-start',
+    paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6, marginBottom: 6,
+  },
+  trendingBadgeText: { fontSize: 9, color: '#C62828', fontWeight: '700' },
+  trendingTitle: { fontSize: 15, fontWeight: '700', color: '#1C1C1E', marginBottom: 2, letterSpacing: -0.2 },
+  trendingDesc: { fontSize: 11, color: '#8E8E93' },
+  premiumBox: {
+    backgroundColor: '#1C1C1E', borderRadius: 18, padding: 16, flexDirection: 'row',
+    alignItems: 'center', marginTop: 4, marginBottom: 20,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 6, elevation: 4
+  },
+  premiumTitle: { fontSize: 14, fontWeight: '700', color: '#FFF' },
+  premiumDesc: { fontSize: 10, color: '#8E8E93' },
+  upgradeBtn: {
+    backgroundColor: '#007AFF', paddingHorizontal: 13, paddingVertical: 7,
+    borderRadius: 10, alignItems: 'center',
+  },
+  upgradeText: { fontSize: 11, fontWeight: '600', color: '#FFF' },
 });
