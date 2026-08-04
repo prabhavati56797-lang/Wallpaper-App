@@ -1,22 +1,23 @@
 import React, { Component } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  StatusBar,
-  Dimensions,
-  Platform,
-  SafeAreaView,
-  TouchableOpacity,
+import { 
+  StyleSheet, 
+  View, 
+  Text, 
+  SafeAreaView, 
+  StatusBar, 
+  TouchableOpacity, 
+  ScrollView, 
   Modal,
-  Alert
+  Animated,
+  Dimensions,
+  Platform
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 
-// नोटिफिकेशन बर्ताव सेट करें कि ऐप खुला होने पर कैसे दिखे
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -25,142 +26,45 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export default class NotificationsScreen extends Component {
+export default class NotificationListenerScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedNotification: null,
-      modalVisible: false,
-      expoPushToken: '',
-      notifications: [
-        {
-          id: '1',
-          title: 'Order Delivered',
-          message: 'Your order #ORD12345 has been delivered successfully.',
-          fullDetails: 'Your package containing items from Order #ORD12345 was safely handed over to you. Thank you for shopping with us!',
-          time: '2m ago',
-          icon: 'bag-handle-outline',
-          iconBg: '#EDE7F6',
-          iconColor: '#7C3AED',
-          dotColor: '#7C3AED'
-        },
-        {
-          id: '2',
-          title: 'Payment Successful',
-          message: 'Your payment of ₹1,299 was successful. Thank you!',
-          fullDetails: 'Your transaction ID TXN987654321 of amount ₹1,299 has been successfully processed via UPI.',
-          time: '15m ago',
-          icon: 'checkmark-circle-outline',
-          iconBg: '#E8F5E9',
-          iconColor: '#2E7D32',
-          dotColor: '#2E7D32'
-        },
-        {
-          id: '3',
-          title: 'New Message',
-          message: 'You have received a new message from John Doe.',
-          fullDetails: 'John Doe sent you a direct message regarding your ongoing project collaboration.',
-          time: '1h ago',
-          icon: 'chatbubbles-outline',
-          iconBg: '#E3F2FD',
-          iconColor: '#1565C0',
-          dotColor: '#1565C0'
-        },
-        {
-          id: '4',
-          title: 'Price Alert',
-          message: 'The price of "Wireless Headphones" has dropped by 20%.',
-          fullDetails: 'The item in your wishlist "Wireless Headphones" is now available at a special discounted price.',
-          time: 'Yesterday, 9:30 PM',
-          icon: 'notifications-outline',
-          iconBg: '#FFF3E0',
-          iconColor: '#EF6C00',
-          dotColor: '#FB8C00',
-          isYesterday: true
-        },
-        {
-          id: '5',
-          title: 'Special Offer',
-          message: 'Get flat 30% off on all products. Limited time offer!',
-          fullDetails: 'Use coupon code FESTIVE30 during checkout to get instant 30% off on your next purchase.',
-          time: 'Yesterday, 6:15 PM',
-          icon: 'gift-outline',
-          iconBg: '#FCE4EC',
-          iconColor: '#C2185B',
-          dotColor: '#E91E63',
-          isYesterday: true
-        }
-      ]
+      showNotificationPopup: false,
+      notificationTitle: 'महत्वपूर्ण अपडेट',
+      notificationBody: 'यहाँ आपका नोटिफिकेशन मैसेज दिखाई देगा...',
+      
+      // नया 3D स्लाइड और फेड एनिमेशन
+      popupSlideAnim: new Animated.Value(300),
+      popupOpacityAnim: new Animated.Value(0)
     };
+    
+    this.notificationListener = null;
+    this.responseListener = null;
   }
 
   componentDidMount() {
-    this.registerForPushNotificationsAsync().then(token => {
-      if (token) {
-        this.setState({ expoPushToken: token });
-        console.log("Expo Push Token:", token);
-      }
-    });
+    this.registerForPushNotificationsAsync();
 
-    // जब ऐप खुला हो और नया नोटिफिकेशन आए
     this.notificationListener = Notifications.addNotificationReceivedListener(notification => {
-      const data = notification.request.content;
-      const newNotif = {
-        id: Date.now().toString(),
-        title: data.title || 'New Notification',
-        message: data.body || 'You have a new alert.',
-        fullDetails: data.data?.fullDetails || data.body || 'No extra details available.',
-        time: 'Just now',
-        icon: 'notifications-outline',
-        iconBg: '#EDE7F6',
-        iconColor: '#7C3AED',
-        dotColor: '#7C3AED',
-        isYesterday: false
-      };
-
-      this.setState(prevState => ({
-        notifications: [newNotif, ...prevState.notifications]
-      }));
+      const title = notification.request.content.title || 'विशेष सूचना';
+      const body = notification.request.content.body || 'नया संदेश प्राप्त हुआ है।';
+      this.triggerAnimatedPopup(title, body);
     });
 
-    // जब यूजर नोटिफिकेशन पर क्लिक करे
     this.responseListener = Notifications.addNotificationResponseReceivedListener(response => {
-      const data = response.notification.request.content;
-      const clickedNotif = {
-        id: 'clicked',
-        title: data.title || 'Notification',
-        message: data.body || '',
-        fullDetails: data.data?.fullDetails || data.body || 'No details.',
-        time: 'Just now',
-        icon: 'notifications-outline',
-        iconBg: '#EDE7F6',
-        iconColor: '#7C3AED'
-      };
-      this.handleNotificationPress(clickedNotif);
+      const title = response.notification.request.content.title || 'विशेष सूचना';
+      const body = response.notification.request.content.body || 'नया संदेश प्राप्त हुआ है।';
+      this.triggerAnimatedPopup(title, body);
     });
   }
 
   componentWillUnmount() {
-    if (this.notificationListener) {
-      this.notificationListener.remove();
-    }
-    if (this.responseListener) {
-      this.responseListener.remove();
-    }
+    if (this.notificationListener) this.notificationListener.remove();
+    if (this.responseListener) this.responseListener.remove();
   }
 
-  // Push Token लेने का फंक्शन
   registerForPushNotificationsAsync = async () => {
-    let token;
-    if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
-      });
-    }
-
     if (Device.isDevice) {
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
@@ -168,389 +72,336 @@ export default class NotificationsScreen extends Component {
         const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
       }
-      if (finalStatus !== 'granted') {
-        Alert.alert('Failed to get push token for push notification!');
-        return;
-      }
-      token = (await Notifications.getExpoPushTokenAsync()).data;
-    } else {
-      console.log('Must use physical device for Push Notifications');
+      if (finalStatus !== 'granted') return;
     }
-
-    return token;
-  }
-
-  handleNotificationPress = (item) => {
-    this.setState({
-      selectedNotification: item,
-      modalVisible: true
-    });
   };
 
-  closeModal = () => {
+  // नया बॉटम-शीट / कार्ड 3D पॉप-अप एनिमेशन
+  triggerAnimatedPopup = (title, body) => {
     this.setState({
-      modalVisible: false,
-      selectedNotification: null
+      notificationTitle: title,
+      notificationBody: body,
+      showNotificationPopup: true
+    });
+
+    this.state.popupSlideAnim.setValue(250);
+    this.state.popupOpacityAnim.setValue(0);
+
+    Animated.parallel([
+      Animated.spring(this.state.popupSlideAnim, {
+        toValue: 0,
+        friction: 7,
+        tension: 45,
+        useNativeDriver: true,
+      }),
+      Animated.timing(this.state.popupOpacityAnim, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: true,
+      })
+    ]).start();
+  };
+
+  closeAnimatedPopup = () => {
+    Animated.timing(this.state.popupOpacityAnim, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => {
+      this.setState({ showNotificationPopup: false });
     });
   };
 
   render() {
-    const todayItems = this.state.notifications.filter(item => !item.isYesterday);
-    const yesterdayItems = this.state.notifications.filter(item => item.isYesterday);
-    const { selectedNotification, modalVisible } = this.state;
+    const { showNotificationPopup, notificationTitle, notificationBody, popupSlideAnim, popupOpacityAnim } = this.state;
 
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#F8F9FA" />
-
-        {/* Top Header */}
-        <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backBtn} 
-            onPress={() => this.props.navigation.goBack()}
-          >
-            <Ionicons name="arrow-back" size={22} color="#1A1A1A" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Notifications</Text>
-        </View>
-
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      <View style={styles.mainWrapper}>
+        <StatusBar barStyle="light-content" backgroundColor="#030712" />
+        
+        <SafeAreaView style={{ flex: 1 }}>
           
-          {/* Today Section */}
-          {todayItems.length > 0 && <Text style={styles.sectionLabel}>Today</Text>}
-          
-          {todayItems.map((item, index) => (
+          {/* प्रीमियम कस्टम हेडर (यहाँ तीर वाले आइकॉन पर क्लिक करने से होम पेज पर जाएगा) */}
+          <View style={styles.topHeader}>
             <TouchableOpacity 
-              key={item.id} 
-              activeOpacity={0.8}
-              onPress={() => this.handleNotificationPress(item)}
-              style={styles.timelineRow}
+              style={styles.backButton} 
+              activeOpacity={0.7}
+              onPress={() => {
+                // यदि आप React Navigation का उपयोग कर रहे हैं:
+                if (this.props.navigation && this.props.navigation.navigate) {
+                  this.props.navigation.navigate('Home');
+                } else {
+                  console.log('Home navigation triggered');
+                }
+              }}
             >
-              <View style={styles.timelineIndicatorCol}>
-                <View style={[styles.dot, { backgroundColor: item.dotColor }]} />
-                {index !== todayItems.length - 1 && <View style={styles.verticalLine} />}
-              </View>
-
-              <View style={styles.notificationCard}>
-                <View style={[styles.iconBox, { backgroundColor: item.iconBg }]}>
-                  <Ionicons name={item.icon} size={22} color={item.iconColor} />
-                </View>
-                <View style={styles.cardContent}>
-                  <View style={styles.cardHeaderRow}>
-                    <Text style={styles.cardTitle}>{item.title}</Text>
-                    <Text style={styles.cardTime}>{item.time}</Text>
-                  </View>
-                  <Text style={styles.cardMessage} numberOfLines={2}>{item.message}</Text>
-                </View>
-              </View>
+              <Feather name="arrow-left" size={22} color="#F9FAFB" />
             </TouchableOpacity>
-          ))}
-
-          {/* Yesterday Section */}
-          {yesterdayItems.length > 0 && <Text style={[styles.sectionLabel, { marginTop: 24 }]}>Yesterday & Older</Text>}
-
-          {yesterdayItems.map((item, index) => (
-            <TouchableOpacity 
-              key={item.id} 
-              activeOpacity={0.8}
-              onPress={() => this.handleNotificationPress(item)}
-              style={styles.timelineRow}
-            >
-              <View style={styles.timelineIndicatorCol}>
-                <View style={[styles.dot, { backgroundColor: item.dotColor }]} />
-                {index !== yesterdayItems.length - 1 && <View style={styles.verticalLine} />}
-              </View>
-
-              <View style={styles.notificationCard}>
-                <View style={[styles.iconBox, { backgroundColor: item.iconBg }]}>
-                  <Ionicons name={item.icon} size={22} color={item.iconColor} />
-                </View>
-                <View style={styles.cardContent}>
-                  <View style={styles.cardHeaderRow}>
-                    <Text style={styles.cardTitle}>{item.title}</Text>
-                    <Text style={styles.cardTime}>{item.time}</Text>
-                  </View>
-                  <Text style={styles.cardMessage} numberOfLines={2}>{item.message}</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))}
-
-          {/* Footer */}
-          <View style={styles.footerContainer}>
-            <View style={styles.dotsRow}>
-              <View style={[styles.footerDot, { backgroundColor: '#7C3AED' }]} />
-              <View style={[styles.footerDot, { backgroundColor: '#7C3AED', opacity: 0.7 }]} />
-              <View style={[styles.footerDot, { backgroundColor: '#7C3AED', opacity: 0.4 }]} />
-            </View>
-            <Text style={styles.footerTitle}>You’re all caught up!</Text>
-            <Text style={styles.footerSubText}>We’ll notify you when something new arrives.</Text>
+            <Text style={styles.topHeaderTitle}>Notifications</Text>
+            <View style={{ width: 40 }} />
           </View>
 
-        </ScrollView>
+          <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+            
+            {/* Today सेक्शन हेडिंग */}
+            <Text style={styles.sectionHeading}>Today</Text>
 
-        {/* Detail Popup Modal (जिसमें पूरा मैसेज और डिबेट दिखेगा) */}
+            {/* Timeline Wrapper */}
+            <View style={styles.timelineContainer}>
+              <View style={styles.verticalLine} />
+
+              {/* कार्ड 1: Order Delivered */}
+              <View style={styles.notificationRow}>
+                <View style={[styles.timelineDot, { backgroundColor: '#A855F7' }]} />
+                <TouchableOpacity 
+                  style={styles.notifCard} 
+                  activeOpacity={0.8}
+                  onPress={() => this.triggerAnimatedPopup('Order Delivered', 'Your order #ORD12345 has been delivered successfully.')}
+                >
+                  <View style={[styles.cardIconBox, { backgroundColor: 'rgba(168, 85, 247, 0.15)' }]}>
+                    <MaterialCommunityIcons name="shopping-outline" size={22} color="#C084FC" />
+                  </View>
+                  <View style={styles.cardContent}>
+                    <View style={styles.cardHeaderRow}>
+                      <Text style={styles.cardTitle}>Order Delivered</Text>
+                      <Text style={styles.cardTime}>2m ago</Text>
+                    </View>
+                    <Text style={styles.cardDesc}>Your order #ORD12345 has been delivered successfully.</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+
+              {/* कार्ड 2: Payment Successful */}
+              <View style={styles.notificationRow}>
+                <View style={[styles.timelineDot, { backgroundColor: '#22C55E' }]} />
+                <TouchableOpacity 
+                  style={styles.notifCard} 
+                  activeOpacity={0.8}
+                  onPress={() => this.triggerAnimatedPopup('Payment Successful', 'Your payment of ₹1,299 was successful. Thank you!')}
+                >
+                  <View style={[styles.cardIconBox, { backgroundColor: 'rgba(34, 197, 94, 0.15)' }]}>
+                    <Feather name="check-circle" size={20} color="#4ADE80" />
+                  </View>
+                  <View style={styles.cardContent}>
+                    <View style={styles.cardHeaderRow}>
+                      <Text style={styles.cardTitle}>Payment Successful</Text>
+                      <Text style={styles.cardTime}>15m ago</Text>
+                    </View>
+                    <Text style={styles.cardDesc}>Your payment of ₹1,299 was successful. Thank you!</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+
+              {/* कार्ड 3: New Message */}
+              <View style={styles.notificationRow}>
+                <View style={[styles.timelineDot, { backgroundColor: '#38BDF8' }]} />
+                <TouchableOpacity 
+                  style={styles.notifCard} 
+                  activeOpacity={0.8}
+                  onPress={() => this.triggerAnimatedPopup('New Message', 'You have received a new message from John Doe.')}
+                >
+                  <View style={[styles.cardIconBox, { backgroundColor: 'rgba(56, 189, 248, 0.15)' }]}>
+                    <Feather name="message-square" size={20} color="#38BDF8" />
+                  </View>
+                  <View style={styles.cardContent}>
+                    <View style={styles.cardHeaderRow}>
+                      <Text style={styles.cardTitle}>New Message</Text>
+                      <Text style={styles.cardTime}>1h ago</Text>
+                    </View>
+                    <Text style={styles.cardDesc}>You have received a new message from John Doe.</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+
+            </View>
+
+            {/* Yesterday & Older सेक्शन */}
+            <Text style={[styles.sectionHeading, { marginTop: 25 }]}>Yesterday & Older</Text>
+
+            <View style={styles.timelineContainer}>
+              <View style={[styles.verticalLine, { height: '80%' }]} />
+
+              {/* कार्ड 4: Price Alert */}
+              <View style={styles.notificationRow}>
+                <View style={[styles.timelineDot, { backgroundColor: '#FB923C' }]} />
+                <TouchableOpacity 
+                  style={styles.notifCard} 
+                  activeOpacity={0.8}
+                  onPress={() => this.triggerAnimatedPopup('Price Alert', 'The price of "Wireless Headphones" has dropped by 20%.')}
+                >
+                  <View style={[styles.cardIconBox, { backgroundColor: 'rgba(251, 146, 60, 0.15)' }]}>
+                    <Feather name="bell" size={20} color="#FB923C" />
+                  </View>
+                  <View style={styles.cardContent}>
+                    <View style={styles.cardHeaderRow}>
+                      <Text style={styles.cardTitle}>Price Alert</Text>
+                      <Text style={styles.cardTime}>Yesterday, 9:30 PM</Text>
+                    </View>
+                    <Text style={styles.cardDesc}>The price of "Wireless Headphones" has dropped by 20%.</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+
+              {/* कार्ड 5: Special Offer */}
+              <View style={styles.notificationRow}>
+                <View style={[styles.timelineDot, { backgroundColor: '#EC4899' }]} />
+                <TouchableOpacity 
+                  style={styles.notifCard} 
+                  activeOpacity={0.8}
+                  onPress={() => this.triggerAnimatedPopup('Special Offer', 'Get flat 30% off on all products. Limited time offer!')}
+                >
+                  <View style={[styles.cardIconBox, { backgroundColor: 'rgba(236, 72, 153, 0.15)' }]}>
+                    <Feather name="gift" size={20} color="#F472B6" />
+                  </View>
+                  <View style={styles.cardContent}>
+                    <View style={styles.cardHeaderRow}>
+                      <Text style={styles.cardTitle}>Special Offer</Text>
+                      <Text style={styles.cardTime}>Yesterday, 6:15 PM</Text>
+                    </View>
+                    <Text style={styles.cardDesc}>Get flat 30% off on all products. Limited time offer!</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+
+            </View>
+
+            {/* फुटर मैसेज */}
+            <View style={styles.footerCatchUp}>
+              <View style={styles.dotRow}>
+                <View style={[styles.miniDot, { backgroundColor: '#A855F7' }]} />
+                <View style={[styles.miniDot, { backgroundColor: '#22C55E' }]} />
+                <View style={[styles.miniDot, { backgroundColor: '#38BDF8' }]} />
+              </View>
+              <Text style={styles.catchUpTitle}>You’re all caught up!</Text>
+              <Text style={styles.catchUpSub}>We’ll notify you when something new arrives.</Text>
+            </View>
+
+          </ScrollView>
+        </SafeAreaView>
+
+        {/* ================= 3D प्रीमियम पॉप-अप डिज़ाइन ================= */}
         <Modal
-          animationType="fade"
+          visible={showNotificationPopup}
           transparent={true}
-          visible={modalVisible}
-          onRequestClose={this.closeModal}
+          animationType="none"
+          onRequestClose={this.closeAnimatedPopup}
         >
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              {selectedNotification && (
-                <>
-                  <View style={styles.modalHeaderRow}>
-                    <View style={[styles.modalIconBox, { backgroundColor: selectedNotification.iconBg }]}>
-                      <Ionicons name={selectedNotification.icon} size={24} color={selectedNotification.iconColor} />
-                    </View>
-                    <View style={{ flex: 1, marginLeft: 12 }}>
-                      <Text style={styles.modalTitle}>{selectedNotification.title}</Text>
-                      <Text style={styles.modalTime}>{selectedNotification.time}</Text>
-                    </View>
-                    <TouchableOpacity onPress={this.closeModal} style={styles.closeBtn}>
-                      <Ionicons name="close" size={20} color="#6B7280" />
-                    </TouchableOpacity>
-                  </View>
+            
+            <Animated.View 
+              style={[
+                styles.newPopupCard, 
+                { 
+                  opacity: popupOpacityAnim,
+                  transform: [{ translateY: popupSlideAnim }] 
+                }
+              ]}
+            >
+              {/* डेकोरेटिव टॉप ग्रैब बार */}
+              <View style={styles.grabBar} />
 
-                  <View style={styles.divider} />
+              {/* हेडर रो: आइकॉन और क्लोज बटन */}
+              <View style={styles.popupTopRow}>
+                <View style={styles.popupBadgeIcon}>
+                  <MaterialCommunityIcons name="bell-badge-outline" size={24} color="#38BDF8" />
+                </View>
+                
+                <TouchableOpacity 
+                  style={styles.closeIconButton}
+                  onPress={this.closeAnimatedPopup}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="close" size={18} color="#9CA3AF" />
+                </TouchableOpacity>
+              </View>
 
-                  <Text style={styles.modalBodyLabel}>Message Summary:</Text>
-                  <Text style={styles.modalMessageText}>{selectedNotification.message}</Text>
+              {/* नोटिफिकेशन टाइटल */}
+              <Text style={styles.newPopupTitle}>{notificationTitle}</Text>
 
-                  <Text style={[styles.modalBodyLabel, { marginTop: 14 }]}>Complete Details:</Text>
-                  <Text style={styles.modalFullDetailsText}>{selectedNotification.fullDetails}</Text>
+              {/* मैसेज बॉडी कार्ड */}
+              <View style={styles.newMessageContainer}>
+                <Text style={styles.newPopupBody}>{notificationBody}</Text>
+              </View>
 
-                  <TouchableOpacity style={styles.actionButton} onPress={this.closeModal}>
-                    <Text style={styles.actionButtonText}>Got it, Close</Text>
-                  </TouchableOpacity>
-                </>
-              )}
-            </View>
+              {/* शानदार ओके / डन बटन */}
+              <TouchableOpacity 
+                style={styles.newAwesomeButton}
+                onPress={this.closeAnimatedPopup}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.newAwesomeButtonText}>ठीक है (Got it)</Text>
+                <Ionicons name="checkmark-circle-outline" size={18} color="#030712" style={{ marginLeft: 8 }} />
+              </TouchableOpacity>
+
+              {/* बॉटम ब्रांडिंग */}
+              <View style={styles.newBrandTag}>
+                <View style={styles.greenPulseDot} />
+                <Text style={styles.newBrandText}>Prabhavati Agency Live Alert</Text>
+              </View>
+
+            </Animated.View>
+
           </View>
         </Modal>
 
-      </SafeAreaView>
+      </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'android' ? 35 : 10,
-    paddingBottom: 18,
-  },
-  backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#E5E7EB',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#1A1A1A',
-    letterSpacing: -0.5,
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  sectionLabel: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#6B7280',
-    marginBottom: 16,
-    marginLeft: 22,
-  },
-  timelineRow: {
-    flexDirection: 'row',
-    marginBottom: 16,
-  },
-  timelineIndicatorCol: {
-    width: 24,
-    alignItems: 'center',
-    marginRight: 8,
-  },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginTop: 24,
-    zIndex: 2,
-  },
-  verticalLine: {
-    width: 2,
-    flex: 1,
-    backgroundColor: '#E5E7EB',
-    position: 'absolute',
-    top: 34,
-    bottom: -16,
-  },
-  notificationCard: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: '#F3F4F6',
-  },
-  iconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 14,
-  },
-  cardContent: {
-    flex: 1,
-  },
-  cardHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  cardTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#1F2937',
-  },
-  cardTime: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#9CA3AF',
-  },
-  cardMessage: {
-    fontSize: 13,
-    color: '#4B5563',
-    lineHeight: 18,
-  },
-  footerContainer: {
-    alignItems: 'center',
-    marginTop: 30,
-    marginBottom: 20,
-  },
-  dotsRow: {
-    flexDirection: 'row',
-    marginBottom: 12,
-  },
-  footerDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    marginHorizontal: 3,
-  },
-  footerTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#374151',
-    marginBottom: 4,
-  },
-  footerSubText: {
-    fontSize: 12,
-    color: '#9CA3AF',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    width: '100%',
-    borderRadius: 24,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 5,
-  },
-  modalHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  modalIconBox: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#1F2937',
-  },
-  modalTime: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#9CA3AF',
-    marginTop: 2,
-  },
-  closeBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#F3F4F6',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: '#E5E7EB',
-    marginVertical: 16,
-  },
-  modalBodyLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#9CA3AF',
-    textTransform: 'uppercase',
-    marginBottom: 4,
-  },
-  modalMessageText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#374151',
-    lineHeight: 20,
-  },
-  modalFullDetailsText: {
-    fontSize: 13,
-    color: '#6B7280',
-    lineHeight: 18,
-  },
-  actionButton: {
-    backgroundColor: '#7C3AED',
-    borderRadius: 14,
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  actionButtonText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '700',
-  },
+  mainWrapper: { flex: 1, backgroundColor: '#030712' },
+  
+  topHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 35, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' },
+  backButton: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#111827', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' },
+  topHeaderTitle: { color: '#F9FAFB', fontSize: 18, fontWeight: '800', letterSpacing: 0.5 },
+
+  container: { padding: 20, paddingBottom: 40 },
+  
+  sectionHeading: { color: '#9CA3AF', fontSize: 14, fontWeight: '700', marginBottom: 14, marginLeft: 24, letterSpacing: 0.5 },
+
+  timelineContainer: { position: 'relative', paddingLeft: 18 },
+  verticalLine: { position: 'absolute', left: 23, top: 10, bottom: 10, width: 2, backgroundColor: 'rgba(255, 255, 255, 0.08)' },
+
+  notificationRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 14, position: 'relative' },
+  timelineDot: { width: 10, height: 10, borderRadius: 5, position: 'absolute', left: -1, zIndex: 2, borderWidth: 2, borderColor: '#030712' },
+
+  notifCard: { flex: 1, marginLeft: 16, backgroundColor: '#0B0F19', borderRadius: 20, padding: 16, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.06)', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 6, elevation: 4 },
+  cardIconBox: { width: 46, height: 46, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginRight: 14 },
+  cardContent: { flex: 1 },
+  cardHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
+  cardTitle: { color: '#F9FAFB', fontSize: 15, fontWeight: '700' },
+  cardTime: { color: '#6B7280', fontSize: 11, fontWeight: '500' },
+  cardDesc: { color: '#9CA3AF', fontSize: 13, lineHeight: 18 },
+
+  footerCatchUp: { alignItems: 'center', marginTop: 30, paddingVertical: 10 },
+  dotRow: { flexDirection: 'row', gap: 6, marginBottom: 10 },
+  miniDot: { width: 6, height: 6, borderRadius: 3 },
+  catchUpTitle: { color: '#F9FAFB', fontSize: 15, fontWeight: '700', marginBottom: 4 },
+  catchUpSub: { color: '#6B7280', fontSize: 12 },
+
+  // ================= 3D पॉप-अप डिज़ाइन स्टाइल्स =================
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(3, 7, 18, 0.88)', justifyContent: 'flex-end', alignItems: 'center' },
+  
+  newPopupCard: { width: '100%', backgroundColor: '#0B0F19', borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 24, paddingBottom: 36, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(56, 189, 248, 0.3)', shadowColor: '#38BDF8', shadowOffset: { width: 0, height: -10 }, shadowOpacity: 0.3, shadowRadius: 20, elevation: 25 },
+  
+  grabBar: { width: 40, height: 4, borderRadius: 2, backgroundColor: 'rgba(255, 255, 255, 0.15)', marginBottom: 16 },
+
+  popupTopRow: { width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  
+  popupBadgeIcon: { width: 50, height: 50, borderRadius: 16, backgroundColor: 'rgba(56, 189, 248, 0.12)', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(56, 189, 248, 0.3)' },
+  
+  closeIconButton: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#111827', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.08)' },
+  
+  newPopupTitle: { color: '#F9FAFB', fontSize: 22, fontWeight: '900', textAlign: 'left', width: '100%', marginBottom: 12, letterSpacing: 0.5 },
+  
+  newMessageContainer: { backgroundColor: '#111827', borderRadius: 18, padding: 18, width: '100%', marginBottom: 20, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.06)' },
+  newPopupBody: { color: '#D1D5DB', fontSize: 15, lineHeight: 24, textAlign: 'left' },
+
+  newAwesomeButton: { backgroundColor: '#38BDF8', height: 52, borderRadius: 16, width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', shadowColor: '#38BDF8', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 8, elevation: 6 },
+  newAwesomeButtonText: { color: '#030712', fontSize: 16, fontWeight: '900' },
+
+  newBrandTag: { flexDirection: 'row', alignItems: 'center', marginTop: 18, paddingTop: 14, borderTopWidth: 1, borderTopColor: 'rgba(255, 255, 255, 0.06)', width: '100%', justifyContent: 'center' },
+  greenPulseDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#34D399', marginRight: 6 },
+  newBrandText: { color: '#9CA3AF', fontSize: 12, fontWeight: '600', letterSpacing: 0.5 }
 });

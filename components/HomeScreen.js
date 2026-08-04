@@ -18,13 +18,75 @@ import { Ionicons, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 const { width } = Dimensions.get('window');
 
 export default class HomeScreen extends Component {
-  constructor(props) {
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+ 
+
+constructor(props) {
     super(props);
-    this.state = { 
+    this.state = {
       searchText: '',
-      isMenuOpen: false 
+      isMenuOpen: false,
+      profileImage: null, // <--- यहाँ नया जोड़ा गया है
     };
   }
+
+  async componentDidMount() {
+    await this.loadProfileImage();
+    this.unsubscribeFocus = this.props.navigation.addListener('focus', async () => {
+      await this.loadProfileImage();
+    });
+  }
+
+  componentWillUnmount() {
+    if (this.unsubscribeFocus) {
+      this.unsubscribeFocus();
+    }
+  }
+
+  loadProfileImage = async () => {
+    try {
+      const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+      const savedImage = await AsyncStorage.getItem('USER_PROFILE_IMAGE');
+      if (savedImage) {
+        this.setState({ profileImage: savedImage });
+      }
+    } catch (error) {
+      console.log('Error loading profile image:', error);
+    }
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   handleCategoryClick = (query) => {
     this.props.navigation.navigate('FullCatogery', { query: query });
@@ -151,15 +213,45 @@ export default class HomeScreen extends Component {
 
 
 
+
+
+
+{/*ravi kumar jiu */}
 <TouchableOpacity 
   style={styles.profileBtnContainer} 
   activeOpacity={0.85}
-  onPress={() => this.props.navigation.navigate('ProfileScreen')}
+  onPress={() => this.props.navigation.navigate('ProfileScreen', {
+    profileImage: this.state.profileImage,
+    onProfileUpdate: async (newImageUri) => {
+      this.setState({ profileImage: newImageUri });
+      try {
+        const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+        await AsyncStorage.setItem('USER_PROFILE_IMAGE', newImageUri);
+      } catch (e) {
+        console.log('Error saving:', e);
+      }
+    }
+  })}
 >
   <View style={styles.profileInnerRing}>
-    <Ionicons name="person" size={20} color="#FFFFFF" />
+    {this.state.profileImage ? (
+      <Image source={{ uri: this.state.profileImage }} style={styles.headerProfileImage} />
+    ) : (
+      <Ionicons name="person" size={20} color="#FFFFFF" />
+    )}
   </View>
 </TouchableOpacity>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1076,7 +1168,40 @@ heroBannerCard: {
     alignItems: 'center',
     borderWidth: 1,
     borderColor: 'rgba(192, 132, 252, 0.4)',
-  }
+  },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+profileInnerRing: {
+  width: 34,
+  height: 34,
+  borderRadius: 17,
+  backgroundColor: '#4338CA',
+  justifyContent: 'center',
+  alignItems: 'center',
+  overflow: 'hidden', // यह बहुत जरूरी है ताकि फोटो गोल आकार से बाहर न निकले
+  borderWidth: 1.5,
+  borderColor: '#E0E7FF',
+},
+headerProfileImage: {
+  width: '100%',
+  height: '100%',
+  resizeMode: 'cover',
+},
 
 
 

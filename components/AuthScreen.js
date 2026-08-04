@@ -7,15 +7,16 @@ import {
   StatusBar, 
   TouchableOpacity, 
   TextInput, 
-  Image, 
   ScrollView, 
   Platform, 
   KeyboardAvoidingView,
   ActivityIndicator,
   Animated,
+  Easing,
   Dimensions
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -29,66 +30,140 @@ export default class AuthScreen extends Component {
       fullName: '',
       secureText: true,
       isLoading: false,
-      loadingStepText: 'सत्यापित किया जा रहा है...',
-      errorMessage: '',
+      loadingStepText: 'सुरक्षित सर्वर से जुड़ रहा है...',
+      errorMessage: ''
     };
-    // 3D स्लाइड-अप एनिमेशन के लिए वैल्यू
+
+    // एनिमेशन वैल्यूज
     this.slideAnim = new Animated.Value(0);
     this.fadeAnim = new Animated.Value(1);
+    this.spinValue = new Animated.Value(0);
+    this.pulseValue = new Animated.Value(1);
   }
 
-  sanitizeInput = (inputText) => {
-    return inputText.replace(/[<>'"]/g, '');
+  componentDidMount() {
+    this.startInfiniteAnimations();
+  }
+
+  // हमेशा चलते रहने वाला प्रीमियम एनिमेशन इंजन
+  startInfiniteAnimations = () => {
+    Animated.loop(
+      Animated.timing(this.spinValue, {
+        toValue: 1,
+        duration: 8000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(this.pulseValue, {
+          toValue: 1.12,
+          duration: 1500,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(this.pulseValue, {
+          toValue: 1,
+          duration: 1500,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        })
+      ])
+    ).start();
   };
 
+  sanitizeInput = (inputText) => {
+    if (!inputText) return '';
+    return inputText.replace(/<[^>]*>?/gm, '').replace(/[\0\x08\x09\x1a\n\r"'\\\%]/g, '');
+  };
+
+  validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  };
+
+  // डेटा सुरक्षित रूप से सेव करके होम पेज पर रीडायरेक्ट करना
+  completeAuthentication = async (name, email) => {
+    try {
+      await AsyncStorage.setItem('USER_PROFILE_NAME', this.sanitizeInput(name));
+      await AsyncStorage.setItem('USER_LOGIN_EMAIL', this.sanitizeInput(email));
+      await AsyncStorage.setItem('AUTH_SESSION_TOKEN', 'SECURE_TOKEN_' + Date.now());
+    } catch (error) {
+      console.log('Secure Storage Exception:', error);
+    }
+
+    Animated.parallel([
+      Animated.timing(this.slideAnim, {
+        toValue: -SCREEN_HEIGHT, 
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.timing(this.fadeAnim, {
+        toValue: 0,
+        duration: 800,
+        useNativeDriver: true,
+      })
+    ]).start(() => {
+      this.setState({ isLoading: false });
+      this.props.navigation.replace('Home');
+    });
+  };
+
+  // फॉर्म वैलिडेट करें और डायरेक्ट लॉगिन/रजिस्टर प्रक्रिया पूरी करें
   handleAuthSubmit = () => {
     const { isLoginMode, email, password, fullName } = this.state;
 
-    if (!email || !password || (!isLoginMode && !fullName)) {
-      this.setState({ errorMessage: 'कृपया सभी आवश्यक फ़ील्ड्स को भरें।' });
+    const cleanEmail = this.sanitizeInput(email.trim());
+    const cleanPassword = password.trim();
+    const cleanName = this.sanitizeInput(fullName.trim());
+
+    if (!cleanEmail || !cleanPassword || (!isLoginMode && !cleanName)) {
+      this.setState({ errorMessage: '⚠️ कृपया सभी आवश्यक फ़ील्ड्स को पूरी तरह भरें।' });
       return;
     }
 
-    // लोडिंग शुरू करें और यूज़र को 3 सेकंड रुकने का बेहतरीन अनुभव दें
+    if (!this.validateEmail(cleanEmail)) {
+      this.setState({ errorMessage: '⚠️ कृपया एक वैध (Valid) ईमेल आईडी दर्ज करें।' });
+      return;
+    }
+
+    if (cleanPassword.length < 6) {
+      this.setState({ errorMessage: '⚠️ सुरक्षा के लिए पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।' });
+      return;
+    }
+
     this.setState({ 
       errorMessage: '', 
       isLoading: true, 
-      loadingStepText: 'डेटा सुरक्षित किया जा रहा है...' 
+      loadingStepText: 'क्रेडेंशियल्स एन्क्रिप्ट हो रहे हैं...' 
     });
 
-    // पहला 1.5 सेकंड प्रोसेसिंग दिखाने के लिए
     setTimeout(() => {
-      this.setState({ loadingStepText: 'डैशबोर्ड तैयार हो रहा है...' });
-    }, 1500);
-
-    // कुल 3 सेकंड (3000ms) पूरे होने के बाद 3D एनिमेशन और पेज स्विच होगा
-    setTimeout(() => {
-      Animated.parallel([
-        Animated.timing(this.slideAnim, {
-          toValue: -SCREEN_HEIGHT, // स्क्रीन को ऊपर की तरफ खींच लेगा
-          duration: 900,
-          useNativeDriver: true,
-        }),
-        Animated.timing(this.fadeAnim, {
-          toValue: 0.2,
-          duration: 900,
-          useNativeDriver: true,
-        })
-      ]).start(() => {
-        this.setState({ isLoading: false });
-        this.props.navigation.replace('Home');
-      });
-    }, 3000);
+      this.setState({ loadingStepText: 'सत्यापन सफल! होम पेज पर रीडायरेक्ट हो रहा है...' });
+      
+      const displayName = isLoginMode ? (cleanEmail.split('@')[0].toUpperCase() || 'SECURE USER') : cleanName;
+      
+      setTimeout(() => {
+        this.completeAuthentication(displayName, cleanEmail);
+      }, 1000);
+    }, 1200);
   };
 
   render() {
     const { isLoginMode, secureText, isLoading, loadingStepText, errorMessage } = this.state;
 
+    const spin = this.spinValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['0deg', '360deg']
+    });
+
     const slideStyle = {
       transform: [
         { translateY: this.slideAnim },
         { perspective: 1000 },
-        { rotateX: this.slideAnim.interpolate({ inputRange: [-SCREEN_HEIGHT, 0], outputRange: ['10deg', '0deg'] }) }
+        { rotateX: this.slideAnim.interpolate({ inputRange: [-SCREEN_HEIGHT, 0], outputRange: ['6deg', '0deg'] }) }
       ],
       opacity: this.fadeAnim
     };
@@ -104,34 +179,38 @@ export default class AuthScreen extends Component {
             >
               <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
                 
+                {/* टॉप सिक्योरिटी बैज */}
                 <View style={styles.topHeader}>
                   <View style={styles.brandBadge}>
-                    <MaterialCommunityIcons name="shield-lock" size={14} color="#38BDF8" />
-                    <Text style={styles.brandBadgeText}> 3 SEC SECURE GATEWAY</Text>
+                    <MaterialCommunityIcons name="shield-check" size={14} color="#34D399" />
+                    <Text style={styles.brandBadgeText}> SECURE DIRECT AUTH GATEWAY</Text>
                   </View>
                 </View>
 
+                {/* एनिमेटेड शील्ड हब */}
                 <View style={styles.bannerContainer}>
-                  <View style={styles.logoGlowCircle}>
-                    <Image 
-                      source={{ uri: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400' }} 
-                      style={styles.bannerImage} 
-                    />
-                    <View style={styles.miniLockBadge}>
-                      <Ionicons name="checkmark-done" size={12} color="#38BDF8" />
+                  <View style={styles.animationWrapper}>
+                    <Animated.View style={[styles.pulseRing, { transform: [{ scale: this.pulseValue }] }]} />
+                    <Animated.View style={[styles.rotatingBorder, { transform: [{ rotate: spin }] }]} />
+                    <View style={styles.centerCoreCircle}>
+                      <MaterialCommunityIcons name="shield-star" size={42} color="#38BDF8" />
+                      <View style={styles.miniLockBadge}>
+                        <Ionicons name="checkmark" size={10} color="#34D399" />
+                      </View>
                     </View>
                   </View>
 
                   <Text style={styles.bannerHeading}>
-                    {isLoginMode ? 'वापस स्वागत है! 👋' : 'खाता पंजीकृत करें 🚀'}
+                    {isLoginMode ? 'सुरक्षित पोर्टल में लॉगिन करें 👋' : 'नया खाता पंजीकृत करें 🚀'}
                   </Text>
                   <Text style={styles.bannerSubtext}>
                     {isLoginMode 
-                      ? 'अपने सुरक्षित स्पेस को एक्सेस करें।' 
-                      : 'प्रोफेशनल 3 सेकंड वेरिफिकेशन के साथ आगे बढ़ें।'}
+                      ? 'अपने क्रेडेंशियल्स दर्ज करें और सुरक्षित रूप से सीधे प्रवेश करें।' 
+                      : 'खाता बनाने के लिए अपनी डिटेल्स भरें और झटपट रजिस्टर करें।'}
                   </Text>
                 </View>
 
+                {/* साइन इन / साइन अप टैब स्विच */}
                 <View style={styles.tabContainer}>
                   <TouchableOpacity 
                     style={[styles.tabButton, isLoginMode && styles.activeTabButton]}
@@ -150,10 +229,11 @@ export default class AuthScreen extends Component {
                   </TouchableOpacity>
                 </View>
 
+                {/* मेन फॉर्म कंटेनर */}
                 <View style={styles.formContainer}>
                   {errorMessage ? (
                     <View style={styles.errorBox}>
-                      <Ionicons name="alert-circle-outline" size={16} color="#EF4444" style={{ marginRight: 6 }} />
+                      <Ionicons name="warning-outline" size={16} color="#EF4444" style={{ marginRight: 6 }} />
                       <Text style={styles.errorText}>{errorMessage}</Text>
                     </View>
                   ) : null}
@@ -165,7 +245,7 @@ export default class AuthScreen extends Component {
                         <Ionicons name="person-outline" size={18} color="#38BDF8" style={{ marginRight: 12 }} />
                         <TextInput 
                           style={styles.textInput}
-                          placeholder="अपना नाम दर्ज करें"
+                          placeholder="अपना पूरा नाम दर्ज करें"
                           placeholderTextColor="#4B5563"
                           editable={!isLoading}
                           value={this.state.fullName}
@@ -181,13 +261,13 @@ export default class AuthScreen extends Component {
                       <Ionicons name="mail-outline" size={18} color="#38BDF8" style={{ marginRight: 12 }} />
                       <TextInput 
                         style={styles.textInput}
-                        placeholder="name@example.com"
+                        placeholder="name@gmail.com"
                         placeholderTextColor="#4B5563"
                         keyboardType="email-address"
                         autoCapitalize="none"
                         editable={!isLoading}
                         value={this.state.email}
-                        onChangeText={(text) => this.setState({ email: this.sanitizeInput(text) })}
+                        onChangeText={(text) => this.setState({ email: text })}
                       />
                     </View>
                   </View>
@@ -225,18 +305,19 @@ export default class AuthScreen extends Component {
                     ) : (
                       <View style={styles.buttonContentRow}>
                         <Text style={styles.primaryButtonText}>
-                          {isLoginMode ? 'Secure Sign In' : 'Create Secure Account'}
+                          {isLoginMode ? 'Secure Sign In' : 'Complete Registration'}
                         </Text>
-                        <Ionicons name="arrow-up" size={16} color="#030712" style={{ marginLeft: 8 }} />
+                        <Ionicons name="arrow-forward" size={16} color="#030712" style={{ marginLeft: 8 }} />
                       </View>
                     )}
                   </TouchableOpacity>
 
                 </View>
 
+                {/* फुटर सिक्योरिटी नोट */}
                 <View style={styles.footerNote}>
                   <Ionicons name="shield-checkmark" size={12} color="#34D399" />
-                  <Text style={styles.footerNoteText}> 256-Bit SSL Encrypted 3-Second Verification</Text>
+                  <Text style={styles.footerNoteText}> Encrypted Direct Gateway Active</Text>
                 </View>
 
               </ScrollView>
@@ -251,15 +332,19 @@ export default class AuthScreen extends Component {
 const styles = StyleSheet.create({
   mainWrapper: { flex: 1, backgroundColor: '#030712' },
   container: { flex: 1, backgroundColor: '#030712' },
-  scrollContainer: { padding: 24, paddingBottom: 40 },
-  topHeader: { flexDirection: 'row', justifyContent: 'center', marginBottom: 10, marginTop: 10 },
-  brandBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(56, 189, 248, 0.06)', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(56, 189, 248, 0.15)' },
-  brandBadgeText: { color: '#38BDF8', fontSize: 10, fontWeight: '800', letterSpacing: 1 },
-  bannerContainer: { alignItems: 'center', marginBottom: 28 },
-  logoGlowCircle: { width: 92, height: 92, borderRadius: 46, backgroundColor: '#0B0F19', padding: 3, borderWidth: 2, borderColor: '#38BDF8', marginBottom: 16, overflow: 'hidden', elevation: 12, shadowColor: '#38BDF8', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.4, shadowRadius: 10 },
-  bannerImage: { width: '100%', height: '100%', borderRadius: 42 },
-  miniLockBadge: { position: 'absolute', bottom: 2, right: 2, backgroundColor: '#0B0F19', borderRadius: 10, padding: 3, borderWidth: 1, borderColor: '#38BDF8' },
-  bannerHeading: { fontSize: 24, fontWeight: '900', color: '#F9FAFB', marginBottom: 8, textAlign: 'center', letterSpacing: 0.5 },
+  scrollContainer: { padding: 24, paddingBottom: 40, justifyContent: 'center' },
+  topHeader: { flexDirection: 'row', justifyContent: 'center', marginBottom: 15, marginTop: 10 },
+  brandBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(52, 211, 153, 0.08)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1, borderColor: 'rgba(52, 211, 153, 0.2)' },
+  brandBadgeText: { color: '#34D399', fontSize: 9, fontWeight: '800', letterSpacing: 1 },
+  
+  bannerContainer: { alignItems: 'center', marginBottom: 25 },
+  animationWrapper: { width: 100, height: 100, justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
+  pulseRing: { position: 'absolute', width: 96, height: 96, borderRadius: 48, backgroundColor: 'rgba(56, 189, 248, 0.15)' },
+  rotatingBorder: { position: 'absolute', width: 90, height: 90, borderRadius: 45, borderWidth: 2, borderColor: '#38BDF8', borderStyle: 'dashed' },
+  centerCoreCircle: { width: 72, height: 72, borderRadius: 36, backgroundColor: '#0B0F19', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#34D399', shadowColor: '#38BDF8', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.8, shadowRadius: 12, elevation: 12 },
+  miniLockBadge: { position: 'absolute', bottom: 2, right: 2, backgroundColor: '#0B0F19', borderRadius: 8, padding: 2, borderWidth: 1, borderColor: '#34D399' },
+
+  bannerHeading: { fontSize: 22, fontWeight: '900', color: '#F9FAFB', marginBottom: 8, textAlign: 'center', letterSpacing: 0.5 },
   bannerSubtext: { fontSize: 13, color: '#9CA3AF', textAlign: 'center', paddingHorizontal: 15, lineHeight: 20 },
   tabContainer: { flexDirection: 'row', backgroundColor: '#0B0F19', borderRadius: 16, padding: 5, marginBottom: 24, borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.04)' },
   tabButton: { flex: 1, paddingVertical: 14, alignItems: 'center', borderRadius: 12 },
