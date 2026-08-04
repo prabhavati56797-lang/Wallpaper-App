@@ -8,7 +8,8 @@ import FullCatogeryScreen from "./components/FullScreen";
 import ImageDisplay from "./components/ImageDisplay";
 import NotificationsScreen from './components/Notifications';
 import ProScreen from "./components/ProScreen";
-import ProfileScreen from "./components/ProfileScreen"; // 👈 प्रोफाइल स्क्रीन यहाँ इम्पोर्ट कर दी गई है
+import ProfileScreen from "./components/ProfileScreen";
+import AiChatScreen from "./components/AiChatScreen"; // 👈 एआई चैट स्क्रीन यहाँ इम्पोर्ट कर दी गई है
 
 const Stack = createStackNavigator();
 
@@ -59,10 +60,17 @@ export default function App() {
           options={{ headerShown: false }}
         />
 
-        {/* यूजर प्रोफाइल स्क्रीन (अब यह पूरी तरह जुड़ चुकी है) */}
+        {/* यूजर प्रोफाइल स्क्रीन */}
         <Stack.Screen 
           name="ProfileScreen" 
           component={ProfileScreen} 
+          options={{ headerShown: false }}
+        />
+
+        {/* इन-ऐप जेमिनी एआई चैट स्क्रीन */}
+        <Stack.Screen 
+          name="AiChat" 
+          component={AiChatScreen} 
           options={{ headerShown: false }}
         />
 

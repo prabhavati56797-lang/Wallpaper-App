@@ -229,10 +229,12 @@ export default class HomeScreen extends Component {
 
 
              {/* 9999999999. Search Bar */}
-            <TouchableOpacity style={styles.sparkleBtn} onPress={() => this.showNextVersionAlert("AI Gen/Sparkle feature")}>
-              <MaterialCommunityIcons name="star-four-points" size={20} color="#FFF" />
-            </TouchableOpacity>
-
+           <TouchableOpacity 
+  style={styles.sparkleBtn} 
+  onPress={() => this.props.navigation.navigate('AiChat')}
+>
+  <MaterialCommunityIcons name="star-four-points" size={20} color="#FFF" />
+</TouchableOpacity>
 
 
 
@@ -373,6 +375,43 @@ export default class HomeScreen extends Component {
             </TouchableOpacity>
           </View>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+          <TouchableOpacity 
+            style={styles.trendingCard}
+            onPress={() => this.showNextVersionAlert("Trending Spotlight Feature")}
+            activeOpacity={0.9}
+          >
+            <View style={styles.trendingContent}>
+              <View style={styles.trendingBadge}>
+                <Ionicons name="flame" size={11} color="#ce352d" />
+                <Text style={styles.trendingBadgeText}> Hot Today</Text>
+              </View>
+              <Text style={styles.trendingTitle}>4K Ultra HD Wallpapers</Text>
+              <Text style={styles.trendingDesc}>Handpicked collections updated every single hour.</Text>
+            </View>
+            <Ionicons name="chevron-forward-outline" size={20} color="#8E8E93" />
+          </TouchableOpacity>
+
+
+
+
+
+
+
+
+
           <TouchableOpacity 
             style={styles.trendingCard}
             onPress={() => this.showNextVersionAlert("Trending Spotlight Feature")}
@@ -388,6 +427,51 @@ export default class HomeScreen extends Component {
             </View>
             <Ionicons name="chevron-forward-outline" size={20} color="#8E8E93" />
           </TouchableOpacity>
+
+
+
+
+
+
+          <TouchableOpacity 
+            style={styles.trendingCard}
+            onPress={() => this.showNextVersionAlert("Trending Spotlight Feature")}
+            activeOpacity={0.9}
+          >
+            <View style={styles.trendingContent}>
+              <View style={styles.trendingBadge}>
+                <Ionicons name="flame" size={11} color="#FF3B30" />
+                <Text style={styles.trendingBadgeText}> Hot Today</Text>
+              </View>
+              <Text style={styles.trendingTitle}>4K Ultra HD Wallpapers</Text>
+              <Text style={styles.trendingDesc}>Handpicked collections updated every single hour.</Text>
+            </View>
+            <Ionicons name="chevron-forward-outline" size={20} color="#8E8E93" />
+          </TouchableOpacity>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         </ScrollView>
 
