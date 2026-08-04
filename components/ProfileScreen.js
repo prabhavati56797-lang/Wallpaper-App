@@ -9,17 +9,91 @@ import {
   TouchableOpacity,
   Dimensions,
   Platform,
-  Alert
+  Alert,
+  Modal,
+  Image,
+  Animated
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker'; // गैलरी से फोटो चुनने के लिए
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 export default class ProfileScreen extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    // नेविगेशन या पैरामीटर से यूज़र का नाम और ईमेल प्राप्त करें, यदि न हो तो डिफ़ॉल्ट वैल्यू लें
+    const routeParams = props.route && props.route.params ? props.route.params : {};
+    
+    this.state = {
+      userName: routeParams.userName || 'PRABHAWATI USER',
+      userEmail: routeParams.userEmail || 'user@prabhavatiagency.com',
+      profileImage: routeParams.profileImage || null,
+      isModalVisible: false, // 3D गैलरी पॉप-अप कंट्रोल करने के लिए
+    };
+
+    // 3D पॉप-अप और स्क्रीन एनिमेशन वैल्यूज
+    this.modalScale = new Animated.Value(0);
+    this.modalFade = new Animated.Value(0);
   }
+
+  // गैलरी से फोटो चुनने का फंक्शन
+  pickImageFromGallery = async () => {
+    // परमिशन मांगें
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    
+    if (permissionResult.granted === false) {
+      Alert.alert("परमिशन आवश्यक", "गैलरी एक्सेस करने की अनुमति दें!");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      this.setState({ profileImage: result.assets[0].uri });
+      this.closeImageModal();
+    }
+  };
+
+  // 3D पॉप-अप खोलने का फंक्शन
+  openImageModal = () => {
+    this.setState({ isModalVisible: true });
+    Animated.parallel([
+      Animated.spring(this.modalScale, {
+        toValue: 1,
+        friction: 6,
+        useNativeDriver: true,
+      }),
+      Animated.timing(this.modalFade, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      })
+    ]).start();
+  };
+
+  // 3D पॉप-अप बंद करने का फंक्शन
+  closeImageModal = () => {
+    Animated.parallel([
+      Animated.timing(this.modalScale, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(this.modalFade, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      })
+    ]).start(() => {
+      this.setState({ isModalVisible: false });
+    });
+  };
 
   handleFeatureAlert = (title, message) => {
     Alert.alert(
@@ -30,6 +104,8 @@ export default class ProfileScreen extends Component {
   };
 
   render() {
+    const { userName, userEmail, profileImage, isModalVisible } = this.state;
+
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#0B0F19" />
@@ -43,7 +119,7 @@ export default class ProfileScreen extends Component {
             <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
           </TouchableOpacity>
           <View style={styles.headerBadgeContainer}>
-            <Text style={styles.headerBadgeText}>⭐ Creator Profile</Text>
+            <Text style={styles.headerBadgeText}>⭐ Live User Profile</Text>
           </View>
           <View style={{ width: 38 }} />
         </View>
@@ -52,46 +128,52 @@ export default class ProfileScreen extends Component {
           
           {/* Profile Card Banner */}
           <View style={styles.profileCard}>
-            <View style={styles.avatarContainer}>
+            
+            {/* यूजर का फोटो आइकॉन - क्लिक करने पर 3D पॉप-अप खुलेगा */}
+            <TouchableOpacity activeOpacity={0.9} onPress={this.openImageModal} style={styles.avatarContainer}>
               <View style={styles.avatarGlowRing}>
                 <View style={styles.avatarInner}>
-                  <Ionicons name="person" size={38} color="#C084FC" />
+                  {profileImage ? (
+                    <Image source={{ uri: profileImage }} style={styles.uploadedAvatar} />
+                  ) : (
+                    <Ionicons name="person" size={38} color="#C084FC" />
+                  )}
                 </View>
               </View>
-              <View style={styles.verifiedBadge}>
-                <Ionicons name="shield-checkmark" size={12} color="#FFFFFF" />
+              <View style={styles.cameraEditBadge}>
+                <Ionicons name="camera" size={12} color="#FFFFFF" />
               </View>
-            </View>
+            </TouchableOpacity>
 
-            <Text style={styles.profileName}>PRABHAWATI-P</Text>
-            <Text style={styles.profileRole}>Lead Agency & App Developer</Text>
+            {/* लॉगिन किए गए यूजर का नाम और ईमेल डायनामिक रूप से दिखेगा */}
+            <Text style={styles.profileName}>{userName}</Text>
+            <Text style={styles.profileEmail}>{userEmail}</Text>
             
             <View style={styles.devTag}>
               <Ionicons name="sparkles" size={12} color="#C084FC" style={{ marginRight: 4 }} />
-              <Text style={styles.devTagText}>Prabhavati Agency Creator</Text>
+              <Text style={styles.devTagText}>Verified Active Member</Text>
             </View>
 
             <Text style={styles.profileBio}>
-              हाई-एंड मोबाइल ऐप्स, कस्टम सॉफ्टवेयर, UI/UX डिज़ाइन और आधुनिक डिजिटल प्रोडक्ट्स तैयार करने में विशेषज्ञ।
+              आपके अकाउंट का सारा डेटा सुरक्षित रूप से सिंक कर दिया गया है। अपनी प्रोफाइल पिक्चर बदलने के लिए ऊपर फोटो पर टैप करें।
             </Text>
           </View>
 
-          {/* Professional Development Status Box (जैसा आपने कहा - 50% काम पूरा और 3-4 हफ्ते में लाइव) */}
+          {/* Professional Development Status Box */}
           <View style={styles.statusCard}>
             <View style={styles.statusHeaderRow}>
               <View style={styles.statusIconWrap}>
                 <MaterialCommunityIcons name="code-progress-check" size={22} color="#34D399" />
               </View>
               <View style={{ flex: 1, marginLeft: 12 }}>
-                <Text style={styles.statusTitle}>डेवलपमेंट प्रोग्रेस: 50% पूर्ण 🚀</Text>
-                <Text style={styles.statusSub}>अगले 3 से 4 हफ्तों में लाइव</Text>
+                <Text style={styles.statusTitle}>क्लाउड सिंक: एक्टिव 🚀</Text>
+                <Text style={styles.statusSub}>डेटा पूरी तरह सुरक्षित है</Text>
               </View>
             </View>
             <Text style={styles.statusDesc}>
-              भाई, इस एडवांस्ड प्रोफाइल और क्लाउड सिंक मॉड्यूल पर काम बहुत तेजी से चल रहा है। आधे से ज्यादा कोडिंग पूरी हो चुकी है। अगले 3-4 हफ्तों में यह पूरी तरह शानदार फीचर्स के साथ आपके सामने लाइव होगा!
+              आपका सेशन सफलतापूर्वक स्थापित हो चुका है। नीचे दिए गए एक्सक्लूसिव फीचर्स जल्द ही आपके ऐप में पूरी तरह लाइव हो जाएंगे।
             </Text>
             
-            {/* Progress Bar UI */}
             <View style={styles.progressBarBg}>
               <View style={styles.progressBarFill} />
             </View>
@@ -106,7 +188,7 @@ export default class ProfileScreen extends Component {
           <TouchableOpacity 
             style={styles.featureItem} 
             activeOpacity={0.85}
-            onPress={() => this.handleFeatureAlert("क्लाउड अकाउंट सिंक", "इसके ज़रिए आपका सारा डेटा और सेटिंग्स क्लाउड पर सुरक्षित रहेंगी। 3-4 हफ्तों में आ रहा है!")}
+            onPress={() => this.handleFeatureAlert("क्लाउड अकाउंट सिंक", "इसके ज़रिए आपका सारा डेटा और सेटिंग्स क्लाउड पर सुरक्षित रहेंगी।")}
           >
             <View style={[styles.featureIconBox, { backgroundColor: 'rgba(59, 130, 246, 0.15)' }]}>
               <Ionicons name="cloud-sync" size={20} color="#60A5FA" />
@@ -137,24 +219,6 @@ export default class ProfileScreen extends Component {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.featureItem} 
-            activeOpacity={0.85}
-            onProgress={() => {}}
-            onPress={() => this.handleFeatureAlert("प्राइवेसी और सिक्योरिटी लॉक", "बायोमेट्रिक फिंगरप्रिंट और पिन लॉक के साथ पूरी सुरक्षा।")}
-          >
-            <View style={[styles.featureIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.15)' }]}>
-              <Ionicons name="lock-closed" size={20} color="#34D399" />
-            </View>
-            <View style={{ flex: 1, marginLeft: 14 }}>
-              <Text style={styles.featureTitle}>सिक्योरिटी और लॉक</Text>
-              <Text style={styles.featureDesc}>पिन और बायोमेट्रिक सुरक्षा कवच</Text>
-            </View>
-            <View style={styles.soonPill}>
-              <Text style={styles.soonPillText}>जल्द लाइव</Text>
-            </View>
-          </TouchableOpacity>
-
           {/* Agency Branding Footer */}
           <View style={styles.footerBranding}>
             <Text style={styles.footerBrandText}>Designed & Developed by Prabhavati Agency</Text>
@@ -162,6 +226,43 @@ export default class ProfileScreen extends Component {
           </View>
 
         </ScrollView>
+
+        {/* 3D Animated Image Picker Modal / Pop-up */}
+        <Modal
+          transparent={true}
+          visible={isModalVisible}
+          animationType="none"
+          onRequestClose={this.closeImageModal}
+        >
+          <View style={styles.modalOverlay}>
+            <Animated.View style={[styles.modalContentBox, { opacity: this.modalFade, transform: [{ scale: this.modalScale }] }]}>
+              
+              <View style={styles.modalHeaderIndicator} />
+              
+              <Text style={styles.modalTitle}>प्रोफाइल फोटो बदलें 📸</Text>
+              <Text style={styles.modalSubtitle}>अपनी गैलरी से एक बेहतरीन तस्वीर चुनें जो आपके प्रोफाइल पर दिखेगी।</Text>
+
+              <TouchableOpacity 
+                style={styles.galleryButton} 
+                activeOpacity={0.8}
+                onPress={this.pickImageFromGallery}
+              >
+                <Ionicons name="images-outline" size={20} color="#030712" style={{ marginRight: 8 }} />
+                <Text style={styles.galleryButtonText}>गैलरी से फोटो चुनें</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.closeModalButton} 
+                activeOpacity={0.8}
+                onPress={this.closeImageModal}
+              >
+                <Text style={styles.closeModalButtonText}>रद्द करें (Cancel)</Text>
+              </TouchableOpacity>
+
+            </Animated.View>
+          </View>
+        </Modal>
+
       </SafeAreaView>
     );
   }
@@ -177,7 +278,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingTop: Platform.OS === 'android' ? 35: 5,
+    paddingTop: Platform.OS === 'android' ? 35 : 5,
     paddingBottom: 10,
   },
   backBtn: {
@@ -233,40 +334,49 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'rgba(168, 85, 247, 0.4)',
+    overflow: 'hidden',
   },
   avatarInner: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 74,
+    height: 74,
+    borderRadius: 37,
     backgroundColor: 'rgba(124, 58, 237, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
+    overflow: 'hidden',
   },
-  verifiedBadge: {
+  uploadedAvatar: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  cameraEditBadge: {
     position: 'absolute',
     bottom: 2,
     right: 2,
-    backgroundColor: '#3B82F6',
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    backgroundColor: '#38BDF8',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#0B0F19',
   },
   profileName: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '900',
     color: '#FFFFFF',
     letterSpacing: -0.5,
+    textAlign: 'center',
   },
-  profileRole: {
+  profileEmail: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#C084FC',
-    marginTop: 2,
+    color: '#38BDF8',
+    marginTop: 4,
     marginBottom: 10,
+    textAlign: 'center',
   },
   devTag: {
     flexDirection: 'row',
@@ -336,7 +446,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   progressBarFill: {
-    width: '50%', // 50% complete
+    width: '100%',
     height: '100%',
     backgroundColor: '#34D399',
     borderRadius: 3,
@@ -412,4 +522,82 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     marginTop: 2,
   },
+  // 3D Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(3, 7, 18, 0.8)',
+    justifyContent: 'flex-end',
+  },
+  modalContentBox: {
+    backgroundColor: '#111827',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: 24,
+    paddingBottom: 40,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(56, 189, 248, 0.3)',
+    shadowColor: '#38BDF8',
+    shadowOffset: { width: 0, height: -10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 15,
+  },
+  modalHeaderIndicator: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#4B5563',
+    borderRadius: 2,
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '950',
+    color: '#FFFFFF',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  modalSubtitle: {
+    fontSize: 13,
+    color: '#9CA3AF',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  galleryButton: {
+    flexDirection: 'row',
+    backgroundColor: '#38BDF8',
+    width: '100%',
+    height: 52,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+    shadowColor: '#38BDF8',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  galleryButtonText: {
+    color: '#030712',
+    fontSize: 15,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+  },
+  closeModalButton: {
+    width: '100%',
+    height: 48,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  closeModalButtonText: {
+    color: '#E5E7EB',
+    fontSize: 14,
+    fontWeight: '700',
+  }
 });

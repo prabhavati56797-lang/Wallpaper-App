@@ -324,25 +324,95 @@ export default class HomeScreen extends Component {
             onPress={() => this.showNextVersionAlert("Navigate to Video Tutorials Page")}
             activeOpacity={0.9}
           >
-            <View style={styles.proBannerContent}>
-              <View style={styles.proBadge}>
-                <Ionicons name="play-circle" size={12} color="#FF9500" />
-                <Text style={styles.proBadgeText}> Masterclass</Text>
-              </View>
-              <Text style={styles.proBannerTitle}>Learn Video Editing & Creator Tips</Text>
-              <Text style={styles.proBannerSubtitle}>Watch step-by-step tutorials from top editors.</Text>
-              
-              <View style={styles.watchNowBtn}>
-                <Text style={styles.watchNowText}>Start Watching</Text>
-                <Ionicons name="arrow-forward" size={13} color="#FFF" style={{ marginLeft: 4 }} />
-              </View>
-            </View>
 
-            <View style={styles.proBannerGraphicBox}>
-              <View style={styles.playIconButton}>
-                <Ionicons name="play" size={28} color="#007AFF" />
-              </View>
-            </View>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<TouchableOpacity 
+  style={styles.heroBannerCard} 
+  onPress={() => this.props.navigation.navigate('VideosScreen')}
+  activeOpacity={0.95}
+>
+  {/* बैकग्राउंड इमेज या थंबनेल */}
+  <Image 
+    source={{ uri: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800' }} 
+    style={styles.heroBannerImage} 
+  />
+  
+  {/* डार्क ग्रेडिएंट ओवरले ताकि टेक्स्ट और ज्यादा चमक कर दिखे */}
+  <View style={styles.heroOverlay}>
+    
+    {/* ऊपर का छोटा प्रीमियम बैज */}
+    <View style={styles.heroTopRow}>
+      <View style={styles.heroBadge}>
+        <Ionicons name="sparkles" size={12} color="#FBBF24" />
+        <Text style={styles.heroBadgeText}> FEATURED MASTERCLASS</Text>
+      </View>
+      <View style={styles.liveIndicator}>
+        <View style={styles.liveDot} />
+        <Text style={styles.liveText}>NEW</Text>
+      </View>
+    </View>
+
+    {/* मुख्य टाइटल और विवरण */}
+    <View style={styles.heroContentArea}>
+      <Text style={styles.heroTitle}>Master Video Editing & App UI Design</Text>
+      <Text style={styles.heroSubtitle}>प्रिंसिपल ट्यूटोरियल देखें और प्रो क्रिएटर बनें।</Text>
+    </View>
+
+    {/* नीचे का एक्शन बटन */}
+    <View style={styles.heroBottomRow}>
+      <View style={styles.watchButton}>
+        <Ionicons name="play" size={14} color="#FFFFFF" style={{ marginRight: 6 }} />
+        <Text style={styles.watchButtonText}>Start Watching Now</Text>
+      </View>
+      <View style={styles.arrowCircle}>
+        <Ionicons name="arrow-forward" size={14} color="#C084FC" />
+      </View>
+    </View>
+
+  </View>
+</TouchableOpacity>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
           </TouchableOpacity>
 
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolkitRow}>
@@ -709,7 +779,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 5,
   },
-  proBannerContent: { flex: 1, paddingRight: 10 },
+  proBannerContent: { flex: 1, paddingRight: 15 },
   proBadge: {
     flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255, 149, 0, 0.15)',
     paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, alignSelf: 'flex-start', marginBottom: 8,
@@ -873,6 +943,148 @@ profileInnerRing: {
   alignItems: 'center',
   backgroundColor: 'rgba(0, 0, 0, 0.1)', // हल्का डेप्थ इफ़ेक्ट
 },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+heroBannerCard: {
+    width: '100%',
+    height: 150,
+    borderRadius: 22,
+    overflow: 'hidden',
+    marginVertical: 14,
+    backgroundColor: '#111827',
+    borderWidth: 1.5,
+    borderColor: 'rgba(192, 132, 252, 0.3)',
+    elevation: 8,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  heroBannerImage: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+  },
+  heroOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(11, 15, 25, 0.82)', // गहरा प्रीमियम शेड ताकि टेक्स्ट साफ़ दिखे
+    padding: 18,
+    justifyContent: 'space-between',
+  },
+  heroTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  heroBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(251, 191, 36, 0.15)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(251, 191, 36, 0.4)',
+  },
+  heroBadgeText: {
+    color: '#FBBF24',
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  liveIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.4)',
+  },
+  liveDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#EF4444',
+    marginRight: 5,
+  },
+  liveText: {
+    color: '#FCA5A5',
+    fontSize: 9,
+    fontWeight: '700',
+  },
+  heroContentArea: {
+    marginVertical: 4,
+  },
+  heroTitle: {
+    color: '#FFFFFF',
+    fontSize: 17,
+    fontWeight: '800',
+    marginBottom: 4,
+    lineHeight: 22,
+  },
+  heroSubtitle: {
+    color: '#9CA3AF',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  heroBottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  watchButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#7C3AED',
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+    borderRadius: 12,
+  },
+  watchButtonText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  arrowCircle: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(124, 58, 237, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(192, 132, 252, 0.4)',
+  }
+
+
+
+
+
+
+
+
 
 
 
