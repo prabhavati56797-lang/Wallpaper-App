@@ -15,9 +15,27 @@ import AiChatScreen from "./components/AiChatScreen";
 
 // वीडियो और अन्य पेजों के इम्पोर्ट्स
 import VideoClipsScreen from "./components/VideoClipsScreen";
-import VideosScreen from "./components/VideosScreen"; // 👈 दूसरी वीडियो फाइल का इम्पोर्ट
+import VideosScreen from "./components/VideosScreen"; 
 import BackgroundMusicScreen from "./components/BackgroundMusicScreen";
 import StickersGifsScreen from "./components/StickersGifsScreen";
+
+// पिछले 3 फीचर्स के इम्पोर्ट्स
+import EmojiStudioScreen from "./components/EmojiStudioScreen";
+import AIVideoFXScreen from "./components/AIVideoFXScreen";
+import SoundFXScreen from "./components/SoundFXScreen";
+
+// नए 6 वीडियो एडिटिंग फीचर्स के इम्पोर्ट्स
+import ProTimelineScreen from "./components/ProTimelineScreen";
+import ThumbnailStudioScreen from "./components/ThumbnailStudioScreen";
+import AIMagicLabScreen from "./components/AIMagicLabScreen";
+import FXColorGradingScreen from "./components/FXColorGradingScreen";
+import AudioBeatSyncScreen from "./components/AudioBeatSyncScreen";
+import KineticTextScreen from "./components/KineticTextScreen";
+
+// 🌟 YouTube, Facebook और Instagram स्क्रीन्स के इम्पोर्ट्स
+import YouTubeScreen from "./components/YouTubeScreen";
+import FacebookScreen from "./components/FacebookScreen";
+import InstagramScreen from "./components/InstagramScreen";
 
 const Stack = createStackNavigator();
 
@@ -99,14 +117,14 @@ export default function App() {
           options={{ headerShown: false }}
         />
 
-        {/* 🎬 वीडियो क्लिप्स स्क्रीन (पहला नाम) */}
+        {/* 🎬 वीडियो क्लिप्स स्क्रीन */}
         <Stack.Screen 
           name="VideoClips" 
           component={VideoClipsScreen} 
           options={{ headerShown: false }}
         />
 
-        {/* 🎬 वीडियो स्क्रीन (दूसरा नाम जो HomeScreen मांग रहा है) */}
+        {/* 🎬 वीडियो स्क्रीन */}
         <Stack.Screen 
           name="VideosScreen" 
           component={VideosScreen} 
@@ -124,6 +142,81 @@ export default function App() {
         <Stack.Screen 
           name="StickersGifs" 
           component={StickersGifsScreen} 
+          options={{ headerShown: false }}
+        />
+
+        {/* पिछले 3 फीचर्स की स्क्रीन्स */}
+        <Stack.Screen 
+          name="EmojiStudio" 
+          component={EmojiStudioScreen} 
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen 
+          name="AIVideoFX" 
+          component={AIVideoFXScreen} 
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen 
+          name="SoundFX" 
+          component={SoundFXScreen} 
+          options={{ headerShown: false }}
+        />
+
+        {/* नए 6 वीडियो एडिटिंग फीचर्स की स्क्रीन्स */}
+        <Stack.Screen 
+          name="ProTimeline" 
+          component={ProTimelineScreen} 
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen 
+          name="ThumbnailStudio" 
+          component={ThumbnailStudioScreen} 
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen 
+          name="AIMagicLab" 
+          component={AIMagicLabScreen} 
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen 
+          name="FXColorGrading" 
+          component={FXColorGradingScreen} 
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen 
+          name="AudioBeatSync" 
+          component={AudioBeatSyncScreen} 
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen 
+          name="KineticText" 
+          component={KineticTextScreen} 
+          options={{ headerShown: false }}
+        />
+
+        {/* 🌟 YouTube, Facebook और Instagram की स्क्रीन्स */}
+        <Stack.Screen 
+          name="YouTube" 
+          component={YouTubeScreen} 
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen 
+          name="Facebook" 
+          component={FacebookScreen} 
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen 
+          name="Instagram" 
+          component={InstagramScreen} 
           options={{ headerShown: false }}
         />
 

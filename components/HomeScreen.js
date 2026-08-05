@@ -413,30 +413,14 @@ constructor(props) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//444444444z
-
 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolkitRow}>
   {[
     { title: 'Video Clips', desc: 'Pro stock footage', icon: 'video-box', route: 'VideoClips' },
     { title: 'Background Music', desc: 'Royalty-free tracks', icon: 'music-note-outline', route: 'BackgroundMusic' },
     { title: 'Stickers & Gifs', desc: 'Animated elements', icon: 'sticker-emoji', route: 'StickersGifs' },
-    { title: 'Emoji Studio', desc: 'Trending expressions', icon: 'emoticon-happy-outline' },
-    { title: 'AI Video FX', desc: 'Cinematic visual effects', icon: 'auto-fix' },
-    { title: 'Sound FX', desc: 'Dynamic audio effects', icon: 'waveform' },
+    { title: 'Emoji Studio', desc: 'Trending expressions', icon: 'emoticon-happy-outline', route: 'EmojiStudio' },
+    { title: 'AI Video FX', desc: 'Cinematic visual effects', icon: 'auto-fix', route: 'AIVideoFX' },
+    { title: 'Sound FX', desc: 'Dynamic audio effects', icon: 'waveform', route: 'SoundFX' },
   ].map((tool, idx) => (
     <TouchableOpacity 
       key={idx} 
@@ -457,6 +441,12 @@ constructor(props) {
     </TouchableOpacity>
   ))}
 </ScrollView>
+
+
+
+
+
+
 
 
 
@@ -530,81 +520,6 @@ onPress={() => this.props.navigation.navigate('VideosScreen')}
 </TouchableOpacity>/\
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-          </TouchableOpacity>
-
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolkitRow}>
-            {[
-              { title: 'Pro Timeline', desc: 'Multi-layer tracks', icon: 'filmstrip' },
-              { title: 'Thumbnail Studio', desc: 'Design covers', icon: 'view-dashboard-outline' },
-              { title: 'AI Magic Lab', desc: 'Smart tools', icon: 'star-shooting-outline' },
-              { title: 'FX Color Grading', desc: 'Cinematic filters', icon: 'palette-swatch-outline' },
-              { title: 'Audio Beat Sync', desc: 'Rhythm cuts', icon: 'waveform' },
-              { title: 'Kinetic Text', desc: 'Animated captions', icon: 'format-text' },
-            ].map((tool, idx) => (
-              <TouchableOpacity 
-                key={idx} 
-                style={styles.toolkitCard}
-                onPress={() => this.showNextVersionAlert(tool.title)}
-                activeOpacity={0.8}
-              >
-                <MaterialCommunityIcons name={tool.icon} size={24} color="#007AFF" style={{ marginBottom: 8 }} />
-                <Text style={styles.toolkitTitle}>{tool.title}</Text>
-                <Text style={styles.toolkitDesc}>{tool.desc}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-
-          {/* 7. Trending Spotlight Section */}
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Trending Spotlight</Text>
-            <TouchableOpacity onPress={() => this.showNextVersionAlert("Trending Spotlight View All")}>
-              <Text style={styles.viewAllText}>View All</Text>
-            </TouchableOpacity>
-          </View>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-          <TouchableOpacity 
-            style={styles.trendingCard}
-            onPress={() => this.showNextVersionAlert("Trending Spotlight Feature")}
-            activeOpacity={0.9}
-          >
-            <View style={styles.trendingContent}>
-              <View style={styles.trendingBadge}>
-                <Ionicons name="flame" size={11} color="#ce352d" />
-                <Text style={styles.trendingBadgeText}> Hot Today</Text>
-              </View>
-              <Text style={styles.trendingTitle}>4K Ultra HD Wallpapers</Text>
-              <Text style={styles.trendingDesc}>Handpicked collections updated every single hour.</Text>
-            </View>
-            <Ionicons name="chevron-forward-outline" size={20} color="#8E8E93" />
           </TouchableOpacity>
 
 
@@ -615,42 +530,145 @@ onPress={() => this.props.navigation.navigate('VideosScreen')}
 
 
 
-          <TouchableOpacity 
-            style={styles.trendingCard}
-            onPress={() => this.showNextVersionAlert("Trending Spotlight Feature")}
-            activeOpacity={0.9}
-          >
-            <View style={styles.trendingContent}>
-              <View style={styles.trendingBadge}>
-                <Ionicons name="flame" size={11} color="#FF3B30" />
-                <Text style={styles.trendingBadgeText}> Hot Today</Text>
-              </View>
-              <Text style={styles.trendingTitle}>4K Ultra HD Wallpapers</Text>
-              <Text style={styles.trendingDesc}>Handpicked collections updated every single hour.</Text>
-            </View>
-            <Ionicons name="chevron-forward-outline" size={20} color="#8E8E93" />
-          </TouchableOpacity>
 
 
 
 
 
 
-          <TouchableOpacity 
-            style={styles.trendingCard}
-            onPress={() => this.showNextVersionAlert("Trending Spotlight Feature")}
-            activeOpacity={0.9}
-          >
-            <View style={styles.trendingContent}>
-              <View style={styles.trendingBadge}>
-                <Ionicons name="flame" size={11} color="#FF3B30" />
-                <Text style={styles.trendingBadgeText}> Hot Today</Text>
-              </View>
-              <Text style={styles.trendingTitle}>4K Ultra HD Wallpapers</Text>
-              <Text style={styles.trendingDesc}>Handpicked collections updated every single hour.</Text>
-            </View>
-            <Ionicons name="chevron-forward-outline" size={20} color="#8E8E93" />
-          </TouchableOpacity>
+
+
+
+
+<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolkitRow}>
+  {[
+    { title: 'Pro Timeline', desc: 'Multi-layer tracks', icon: 'filmstrip', route: 'ProTimeline' },
+    { title: 'Thumbnail Studio', desc: 'Design covers', icon: 'view-dashboard-outline', route: 'ThumbnailStudio' },
+    { title: 'AI Magic Lab', desc: 'Smart tools', icon: 'star-shooting-outline', route: 'AIMagicLab' },
+    { title: 'FX Color Grading', desc: 'Cinematic filters', icon: 'palette-swatch-outline', route: 'FXColorGrading' },
+    { title: 'Audio Beat Sync', desc: 'Rhythm cuts', icon: 'waveform', route: 'AudioBeatSync' },
+    { title: 'Kinetic Text', desc: 'Animated captions', icon: 'format-text', route: 'KineticText' },
+  ].map((tool, idx) => (
+    <TouchableOpacity 
+      key={idx} 
+      style={styles.toolkitCard}
+      onPress={() => {
+        if (tool.route) {
+          this.props.navigation.navigate(tool.route);
+        } else {
+          this.showNextVersionAlert(tool.title);
+        }
+      }}
+      activeOpacity={0.8}
+    >
+      <MaterialCommunityIcons name={tool.icon} size={24} color="#007AFF" style={{ marginBottom: 8 }} />
+      <Text style={styles.toolkitTitle}>{tool.title}</Text>
+      <Text style={styles.toolkitDesc}>{tool.desc}</Text>
+    </TouchableOpacity>
+  ))}
+</ScrollView>
+
+{/* 7. Trending Spotlight Section */}
+<View style={styles.sectionHeader}>
+  <Text style={styles.sectionTitle}>Trending Spotlight</Text>
+  <TouchableOpacity onPress={() => this.showNextVersionAlert("Trending Spotlight View All")}>
+    <Text style={styles.viewAllText}>View All</Text>
+  </TouchableOpacity>
+</View>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//7676767776 
+
+{/* पहला कार्ड - YouTube Studio */}
+<TouchableOpacity 
+  style={styles.trendingCard}
+  onPress={() => this.props.navigation.navigate('YouTube')}
+  activeOpacity={0.9}
+>
+  <View style={styles.trendingContent}>
+    <View style={styles.trendingBadge}>
+      <Ionicons name="flame" size={11} color="#FF0000" />
+      <Text style={styles.trendingBadgeText}> Hot Today</Text>
+    </View>
+    <Text style={styles.trendingTitle}>YouTube Studio Hub</Text>
+    <Text style={styles.trendingDesc}>Manage videos, shorts, and channel analytics instantly.</Text>
+  </View>
+  <Ionicons name="chevron-forward-outline" size={20} color="#8E8E93" />
+</TouchableOpacity>
+
+{/* दूसरा कार्ड - Facebook Tools */}
+<TouchableOpacity 
+  style={styles.trendingCard}
+  onPress={() => this.props.navigation.navigate('Facebook')}
+  activeOpacity={0.9}
+>
+  <View style={styles.trendingContent}>
+    <View style={styles.trendingBadge}>
+      <Ionicons name="flame" size={11} color="#1877F2" />
+      <Text style={styles.trendingBadgeText}> Hot Today</Text>
+    </View>
+    <Text style={styles.trendingTitle}>Facebook Creator Tools</Text>
+    <Text style={styles.trendingDesc}>Optimize your page posts, reels, and audience reach.</Text>
+  </View>
+  <Ionicons name="chevron-forward-outline" size={20} color="#8E8E93" />
+</TouchableOpacity>
+
+{/* तीसरा कार्ड - Instagram Reels */}
+<TouchableOpacity 
+  style={styles.trendingCard}
+  onPress={() => this.props.navigation.navigate('Instagram')}
+  activeOpacity={0.9}
+>
+  <View style={styles.trendingContent}>
+    <View style={styles.trendingBadge}>
+      <Ionicons name="flame" size={11} color="#E1306C" />
+      <Text style={styles.trendingBadgeText}> Hot Today</Text>
+    </View>
+    <Text style={styles.trendingTitle}>Instagram Reels Studio</Text>
+    <Text style={styles.trendingDesc}>Explore trending audio, effects, and viral publishing tools.</Text>
+  </View>
+  <Ionicons name="chevron-forward-outline" size={20} color="#8E8E93" />
+</TouchableOpacity>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
