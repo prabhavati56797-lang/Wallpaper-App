@@ -5,33 +5,34 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 
 // सभी स्क्रीन इम्पोर्ट्स
-import AuthScreen from "./components/AuthScreen"; // 👈 सबसे पहले खुलने वाला सिक्योर ऑथेंटिकेशन पेज
+import AuthScreen from "./components/AuthScreen"; 
 import HomeScreen from "./components/HomeScreen";
 import FullCatogeryScreen from "./components/FullScreen";
 import ImageDisplay from "./components/ImageDisplay";
 import NotificationsScreen from './components/Notifications';
-import ProScreen from "./components/ProScreen";
 import ProfileScreen from "./components/ProfileScreen";
 import AiChatScreen from "./components/AiChatScreen"; 
-import VideosScreen from "./components/VideosScreen"; 
+
+// वीडियो और अन्य पेजों के इम्पोर्ट्स
+import VideoClipsScreen from "./components/VideoClipsScreen";
+import VideosScreen from "./components/VideosScreen"; // 👈 दूसरी वीडियो फाइल का इम्पोर्ट
+import BackgroundMusicScreen from "./components/BackgroundMusicScreen";
+import StickersGifsScreen from "./components/StickersGifsScreen";
 
 const Stack = createStackNavigator();
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // चेक करता है कि यूज़र लॉग-ইন है या नहीं
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    // यहाँ आप चाहें तो AsyncStore या SecureStore से चेक कर सकते हैं कि टोकन मौजूद है या नहीं
     setTimeout(() => {
       setIsLoading(false);
-      // यदि यूज़र पहले से लॉग-इन है तो इसे true करें, अन्यथा false ताकि AuthScreen खुले
       setIsLoggedIn(false); 
     }, 1000);
   }, []);
 
   if (isLoading) {
-    // जब तक ऐप सुरक्षा जाँच (Security Session Check) कर रहा है, लोडिंग स्पिनर दिखाएं
     return (
       <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color="#38BDF8" />
@@ -42,15 +43,14 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName={isLoggedIn ? 'Home' : 'Auth'} // 👈 यदि लॉग-इन है तो Home, वरना Auth खुलेगा
+        initialRouteName={isLoggedIn ? 'Home' : 'Auth'}
         screenOptions={{
           gestureEnabled: true,
           gestureDirection: 'vertical',
           animationEnabled: false,
         }}
       >
-
-        {/* 1. सबसे पहले खुलने वाला सिक्योर ऑथेंटिकेशन और साइन-इन/साइन-अप पेज */}
+        {/* 1. ऑथेंटिकेशन पेज */}
         <Stack.Screen 
           name="Auth" 
           component={AuthScreen} 
@@ -85,13 +85,6 @@ export default function App() {
           options={{ headerShown: false }}
         />
 
-        {/* प्रो सब्सक्रिप्शन स्क्रीन */}
-        <Stack.Screen 
-          name="ProScreen" 
-          component={ProScreen} 
-          options={{ headerShown: false }}
-        />
-
         {/* यूजर प्रोफाइल स्क्रीन */}
         <Stack.Screen 
           name="ProfileScreen" 
@@ -106,10 +99,31 @@ export default function App() {
           options={{ headerShown: false }}
         />
 
-        {/* वीडियो लर्निंग और ट्यूटोरियल स्क्रीन */}
+        {/* 🎬 वीडियो क्लिप्स स्क्रीन (पहला नाम) */}
+        <Stack.Screen 
+          name="VideoClips" 
+          component={VideoClipsScreen} 
+          options={{ headerShown: false }}
+        />
+
+        {/* 🎬 वीडियो स्क्रीन (दूसरा नाम जो HomeScreen मांग रहा है) */}
         <Stack.Screen 
           name="VideosScreen" 
           component={VideosScreen} 
+          options={{ headerShown: false }}
+        />
+
+        {/* 🎵 बैकग्राउंड म्यूजिक स्क्रीन */}
+        <Stack.Screen 
+          name="BackgroundMusic" 
+          component={BackgroundMusicScreen} 
+          options={{ headerShown: false }}
+        />
+
+        {/* 🎨 स्टिकर्स एंड जिफ्स स्क्रीन */}
+        <Stack.Screen 
+          name="StickersGifs" 
+          component={StickersGifsScreen} 
           options={{ headerShown: false }}
         />
 

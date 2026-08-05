@@ -177,15 +177,6 @@ constructor(props) {
 
 
 
-<TouchableOpacity 
-  style={[styles.iconBtn, { marginRight: 8 }]} 
-  onPress={() => this.props.navigation.navigate('ProScreen')}
->
-  <Ionicons name="star" size={21} color="#e7892b" />
-</TouchableOpacity>
-
-
-
 
 
 
@@ -388,27 +379,94 @@ constructor(props) {
             ))}
           </ScrollView>
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolkitRow}>
-            {[
-              { title: 'Video Clips', desc: 'Pro stock footage', icon: 'video-box' },
-              { title: 'Background Music', desc: 'Royalty-free tracks', icon: 'music-note-outline' },
-              { title: 'Stickers & Gifs', desc: 'Animated elements', icon: 'sticker-emoji' },
-              { title: 'Emoji Studio', desc: 'Trending expressions', icon: 'emoticon-happy-outline' },
-              { title: 'AI Video FX', desc: 'Cinematic visual effects', icon: 'auto-fix' },
-              { title: 'Sound FX', desc: 'Dynamic audio effects', icon: 'waveform' },
-            ].map((tool, idx) => (
-              <TouchableOpacity 
-                key={idx} 
-                style={styles.toolkitCard}
-                onPress={() => this.showNextVersionAlert(tool.title)}
-                activeOpacity={0.8}
-              >
-                <MaterialCommunityIcons name={tool.icon} size={24} color="#007AFF" style={{ marginBottom: 8 }} />
-                <Text style={styles.toolkitTitle}>{tool.title}</Text>
-                <Text style={styles.toolkitDesc}>{tool.desc}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//444444444z
+
+<ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolkitRow}>
+  {[
+    { title: 'Video Clips', desc: 'Pro stock footage', icon: 'video-box', route: 'VideoClips' },
+    { title: 'Background Music', desc: 'Royalty-free tracks', icon: 'music-note-outline', route: 'BackgroundMusic' },
+    { title: 'Stickers & Gifs', desc: 'Animated elements', icon: 'sticker-emoji', route: 'StickersGifs' },
+    { title: 'Emoji Studio', desc: 'Trending expressions', icon: 'emoticon-happy-outline' },
+    { title: 'AI Video FX', desc: 'Cinematic visual effects', icon: 'auto-fix' },
+    { title: 'Sound FX', desc: 'Dynamic audio effects', icon: 'waveform' },
+  ].map((tool, idx) => (
+    <TouchableOpacity 
+      key={idx} 
+      style={styles.toolkitCard}
+      onPress={() => {
+        // यदि राउट मौजूद है तो उस पेज पर जाएं, वरना अलर्ट दिखाएं
+        if (tool.route) {
+          this.props.navigation.navigate(tool.route);
+        } else {
+          this.showNextVersionAlert(tool.title);
+        }
+      }}
+      activeOpacity={0.8}
+    >
+      <MaterialCommunityIcons name={tool.icon} size={24} color="#007AFF" style={{ marginBottom: 8 }} />
+      <Text style={styles.toolkitTitle}>{tool.title}</Text>
+      <Text style={styles.toolkitDesc}>{tool.desc}</Text>
+    </TouchableOpacity>
+  ))}
+</ScrollView>
+
+
+
+
+
+
+
+
+
+
 
           {/* 5. Pro Learning & Tutorials Banner */}
           <TouchableOpacity 
@@ -422,24 +480,13 @@ constructor(props) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <TouchableOpacity 
   style={styles.heroBannerCard} 
-  onPress={() => this.props.navigation.navigate('VideosScreen')}
+onPress={() => this.props.navigation.navigate('VideosScreen')}
   activeOpacity={0.95}
+
+
+
 >
   {/* बैकग्राउंड इमेज या थंबनेल */}
   <Image 
@@ -480,13 +527,7 @@ constructor(props) {
     </View>
 
   </View>
-</TouchableOpacity>
-
-
-
-
-
-
+</TouchableOpacity>/\
 
 
 
