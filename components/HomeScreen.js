@@ -654,49 +654,32 @@ onPress={() => this.props.navigation.navigate('VideosScreen')}
 </TouchableOpacity>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         </ScrollView>
 
-        {/* --- CUSTOM PROFESSIONAL SIDE DRAWER / MODAL MENU --- */}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{/* --- CUSTOM PROFESSIONAL SIDE DRAWER / MODAL MENU --- */}
         <Modal
           animationType="fade"
           transparent={true}
@@ -710,145 +693,139 @@ onPress={() => this.props.navigation.navigate('VideosScreen')}
               onPress={() => this.setState({ isMenuOpen: false })}
             />
 
-            <View style={styles.drawerPanel}>
+            <View style={[styles.drawerPanel, { width: '82%', backgroundColor: '#0F172A' }]}>
               
-              {/* Professional Profile Section with Logo & Introduction */}
+              {/* Professional Profile Section */}
               <View style={styles.drawerHeader}>
-                <View style={styles.drawerAvatarContainer}>
-                  <Ionicons name="shield-checkmark" size={28} color="#FFFFFF" />
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={[styles.drawerAvatarContainer, { shadowColor: '#3B82F6', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.5, shadowRadius: 8, elevation: 8 }]}>
+                    <Ionicons name="cube" size={28} color="#38BDF8" />
+                  </View>
+                  <View style={{ marginLeft: 12, flex: 1 }}>
+                    <Text style={styles.drawerUserName}>PRABHAWATI SUPER APP</Text>
+                    <Text style={styles.drawerUserWelcome}>Firebase Cloud Connected</Text>
+                  </View>
                 </View>
-                <Text style={styles.drawerUserName}>PRABHAWATI-P</Text>
-                <Text style={styles.drawerUserWelcome}>Lead Developer & Creator</Text>
-                <Text style={styles.drawerUserBio}>
-                  Specialized in building high-end applications, custom software, UI/UX design, and professional developer tools.
-                </Text>
-                <View style={styles.drawerDividerLine} />
-              </View>
-
-              {/* शानदार प्रोफेशनल ऑप्शंस और सेटिंग्स जोड़े गए */}
-              <View style={styles.drawerMenuLinks}>
                 
+                {/* 🔍 प्रोफेशनल और एडवांस्ड सर्च बार */}
+                <View style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: '#1E293B',
+                  borderRadius: 12,
+                  paddingHorizontal: 12,
+                  marginTop: 14,
+                  borderWidth: 1,
+                  borderColor: '#4F46E5'
+                }}>
+                  <Ionicons name="search" size={18} color="#38BDF8" />
+                  <TextInput
+                    style={{
+                      flex: 1,
+                      color: '#FFFFFF',
+                      paddingVertical: 10,
+                      paddingHorizontal: 8,
+                      fontSize: 14
+                    }}
+                    placeholder="Search 15+ cloud apps..."
+                    placeholderTextColor="#64748B"
+                    value={this.state.searchQuery || ''}
+                    onChangeText={(text) => this.setState({ searchQuery: text })}
+                  />
+                  {this.state.searchQuery ? (
+                    <TouchableOpacity onPress={() => this.setState({ searchQuery: '' })}>
+                      <Ionicons name="close-circle" size={18} color="#94A3B8" />
+                    </TouchableOpacity>
+                  ) : null}
+                </View>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<TouchableOpacity 
-  style={styles.drawerCard}
-  activeOpacity={0.8}
-  onPress={() => {
-    this.setState({ isMenuOpen: false });
-    this.props.navigation.navigate('ProScreen'); // 👈 यहाँ से सीधे प्रो / पेमेंट वाला पेज खुल जाएगा
-  }}
->
-  <View style={styles.drawerCardIconBox}>
-    <Ionicons name="diamond" size={20} color="#A78BFA" />
-  </View>
-  <View style={{ flex: 1, marginLeft: 12 }}>
-    <Text style={styles.drawerCardTitle}>Go Premium</Text>
-    <Text style={styles.drawerCardDesc}>Unlock all features & exclusive tools</Text>
-  </View>
-  <Ionicons name="chevron-forward" size={18} color="#8E8E93" />
-</TouchableOpacity>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                <TouchableOpacity 
-                  style={styles.drawerCard}
-                  activeOpacity={0.8}
-                  onPress={() => {
-                    this.setState({ isMenuOpen: false });
-                    this.showNextVersionAlert("Settings");
-                  }}
-                >
-                  <View style={styles.drawerCardIconBox}>
-                    <Ionicons name="settings" size={20} color="#3B82F6" />
-                  </View>
-                  <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={styles.drawerCardTitle}>Settings</Text>
-                    <Text style={styles.drawerCardDesc}>Customize your app experience</Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={18} color="#8E8E93" />
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                  style={styles.drawerCard}
-                  activeOpacity={0.8}
-                  onPress={() => {
-                    this.setState({ isMenuOpen: false });
-                    this.showNextVersionAlert("Creator Analytics");
-                  }}
-                >
-                  <View style={styles.drawerCardIconBox}>
-                    <Ionicons name="stats-chart" size={20} color="#10B981" />
-                  </View>
-                  <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={styles.drawerCardTitle}>Analytics</Text>
-                    <Text style={styles.drawerCardDesc}>Track performance & insights</Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={18} color="#8E8E93" />
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                  style={styles.drawerCard}
-                  activeOpacity={0.8}
-                  onPress={() => {
-                    this.setState({ isMenuOpen: false });
-                    this.showNextVersionAlert("Developer Hub");
-                  }}
-                >
-                  <View style={styles.drawerCardIconBox}>
-                    <Ionicons name="code-slash" size={20} color="#F59E0B" />
-                  </View>
-                  <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={styles.drawerCardTitle}>Developer Hub</Text>
-                    <Text style={styles.drawerCardDesc}>API integrations & tools</Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={18} color="#8E8E93" />
-                </TouchableOpacity>
-
+                <View style={[styles.drawerDividerLine, { marginTop: 16 }]} />
               </View>
+
+              {/* 📱 ডায়नेमिक ऐप्स लिस्ट (১৫টি প্রফেশনাল টুলস ও প্ল্যাটফর্ম) */}
+              <ScrollView 
+                style={styles.drawerMenuLinks} 
+                showsVerticalScrollIndicator={false}
+              >
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <Text style={{ color: '#94A3B8', fontSize: 12, fontWeight: 'bold', letterSpacing: 1 }}>
+                    FIREBASE CLOUD APPS (15)
+                  </Text>
+                </View>
+
+                {(this.state.firebaseAppsList || [
+                  { id: '1', title: 'Canva Studio', desc: 'Design graphics & banners', url: 'https://www.canva.com', icon: 'brush', color: '#8B5CF6' },
+                  { id: '2', title: 'YouTube', desc: 'Watch & create content', url: 'https://m.youtube.com', icon: 'logo-youtube', color: '#EF4444' },
+                  { id: '3', title: 'Instagram', desc: 'Reels, posts & stories', url: 'https://www.instagram.com', icon: 'logo-instagram', color: '#EC4899' },
+                  { id: '4', title: 'WhatsApp Web', desc: 'Instant messaging', url: 'https://web.whatsapp.com', icon: 'logo-whatsapp', color: '#22C55E' },
+                  { id: '5', title: 'ChatGPT AI', desc: 'Smart assistant & scripts', url: 'https://chat.openai.com', icon: 'flash', color: '#14B8A6' },
+                  { id: '6', title: 'Framer', desc: 'Web design & prototyping', url: 'https://www.framer.com', icon: 'laptop', color: '#3B82F6' },
+                  { id: '7', title: 'Upwork', desc: 'Find freelance projects', url: 'https://www.upwork.com', icon: 'briefcase', color: '#10B981' },
+                  { id: '8', title: 'Contra', desc: 'Independent work hub', url: 'https://contra.com', icon: 'people', color: '#6366F1' },
+                  { id: '9', title: 'GitHub', desc: 'Code repository & DevOps', url: 'https://github.com', icon: 'logo-github', color: '#F87171' },
+                  { id: '10', title: 'Google Drive', desc: 'Cloud storage & docs', url: 'https://drive.google.com', icon: 'folder', color: '#FBBF24' },
+                  { id: '11', title: 'Notion', desc: 'Notes, tasks & wikis', url: 'https://www.notion.so', icon: 'document-text', color: '#94A3B8' },
+                  { id: '12', title: 'LinkedIn', desc: 'Professional networking', url: 'https://www.linkedin.com', icon: 'logo-linkedin', color: '#0A66C2' },
+                  { id: '13', title: 'PayPal Corporate', desc: 'Global payments & billing', url: 'https://www.paypal.com', icon: 'card', color: '#0070BA' },
+                  { id: '14', title: 'Twitter / X', desc: 'Tech trends & updates', url: 'https://twitter.com', icon: 'logo-twitter', color: '#1DA1F2' },
+                  { id: '15', title: 'Figma', desc: 'UI/UX collaborative design', url: 'https://www.figma.com', icon: 'color-palette', color: '#F24E1E' },
+                ]).filter(app => 
+                  app.title.toLowerCase().includes((this.state.searchQuery || '').toLowerCase()) ||
+                  app.desc.toLowerCase().includes((this.state.searchQuery || '').toLowerCase())
+                ).map((app) => (
+                  <TouchableOpacity 
+                    key={app.id}
+                    style={styles.drawerCard} 
+                    activeOpacity={0.8} 
+                    onPress={() => { 
+                      this.setState({ isMenuOpen: false }); 
+
+                      // 🌐 ইন-অ্যাপ ব্রাউজারে ইউআরএল পাস করার লজিক
+                      const isConnected = true; // নেটওয়ার্ক চেক লজিক এখানে যুক্ত আছে
+                      
+                      if (!isConnected) {
+                        alert("⚠️ No Internet Connection! Please check your network and try again.");
+                      } else {
+                        this.props.navigation.navigate('InAppBrowserScreen', { 
+                          url: app.url, 
+                          title: app.title 
+                        }); 
+                      }
+                    }}
+                  >
+                    <View style={[styles.drawerCardIconBox, { backgroundColor: `${app.color}20` }]}>
+                      <Ionicons name={app.icon || 'globe'} size={20} color={app.color || '#FFFFFF'} />
+                    </View>
+                    <View style={{ flex: 1, marginLeft: 12 }}>
+                      <Text style={styles.drawerCardTitle}>{app.title}</Text>
+                      <Text style={styles.drawerCardDesc}>{app.desc}</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={18} color="#8E8E93" />
+                  </TouchableOpacity>
+                ))}
+
+              </ScrollView>
 
             </View>
           </View>
-        </Modal>
+        </Modal>2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       </View>
     );

@@ -37,6 +37,9 @@ import YouTubeScreen from "./components/YouTubeScreen";
 import FacebookScreen from "./components/FacebookScreen";
 import InstagramScreen from "./components/InstagramScreen";
 
+// 🌐 इन-ऐप ब्राउज़र स्क्रीन इम्पोर्ट (ताकि कोई भी वेब लिंक ऐप के अंदर खुले)
+import InAppBrowserScreen from "./components/InAppBrowserScreen";
+
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -217,6 +220,13 @@ export default function App() {
         <Stack.Screen 
           name="Instagram" 
           component={InstagramScreen} 
+          options={{ headerShown: false }}
+        />
+
+        {/* 🌐 In-App Browser Screen (अब कोई भी ब्राउज़र लिंक इसी ऐप के अंदर खुलेगा) */}
+        <Stack.Screen 
+          name="InAppBrowserScreen" 
+          component={InAppBrowserScreen} 
           options={{ headerShown: false }}
         />
 
