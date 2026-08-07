@@ -37,8 +37,20 @@ import YouTubeScreen from "./components/YouTubeScreen";
 import FacebookScreen from "./components/FacebookScreen";
 import InstagramScreen from "./components/InstagramScreen";
 
-// 🌐 इन-ऐप ब्राउज़र स्क्रीन इम्पोर्ट (ताकि कोई भी वेब लिंक ऐप के अंदर खुले)
+// 🌐 इन-ऐप ब्राउज़र स्क्रीन इम्पोर्ट
 import InAppBrowserScreen from "./components/InAppBrowserScreen";
+
+// 🔍 यूनिवर्सल सर्च और ब्राउज़र स्क्रीन इम्पोर्ट
+import UniversalSearchScreen from "./components/UniversalSearchScreen";
+
+// 🌍 ग्लोबल न्यूज़ और स्टोरीज स्क्रीन इम्पोर्ट
+import GlobalNewsScreen from "./components/GlobalNewsScreen";
+
+// 🌐 World Services & Apps Hub Screen इम्पोर्ट
+import WorldHubScreen from "./components/WorldHubScreen";
+
+// 🚀 क्लाउड डैशबोर्ड स्क्रीन इम्पोर्ट (जो आपने मेनू से खोलने के लिए बनाया है)
+import CloudDashboardScreen from "./components/CloudDashboardScreen"; 
 
 const Stack = createStackNavigator();
 
@@ -223,10 +235,38 @@ export default function App() {
           options={{ headerShown: false }}
         />
 
-        {/* 🌐 In-App Browser Screen (अब कोई भी ब्राउज़र लिंक इसी ऐप के अंदर खुलेगा) */}
+        {/* 🌐 In-App Browser Screen */}
         <Stack.Screen 
           name="InAppBrowserScreen" 
           component={InAppBrowserScreen} 
+          options={{ headerShown: false }}
+        />
+
+        {/* 🔍 Universal Search & Browser Screen */}
+        <Stack.Screen 
+          name="UniversalSearchScreen" 
+          component={UniversalSearchScreen} 
+          options={{ headerShown: false }}
+        />
+
+        {/* 🌍 Global News & Stories Screen */}
+        <Stack.Screen 
+          name="GlobalNews" 
+          component={GlobalNewsScreen} 
+          options={{ headerShown: false }}
+        />
+
+        {/* 🌐 World Services & Apps Hub Screen */}
+        <Stack.Screen 
+          name="WorldHubScreen" 
+          component={WorldHubScreen} 
+          options={{ headerShown: false }}
+        />
+
+        {/* 🚀 Cloud Dashboard Screen (मेनू बटन से खुलने वाला पेज) */}
+        <Stack.Screen 
+          name="CloudDashboardScreen" 
+          component={CloudDashboardScreen} 
           options={{ headerShown: false }}
         />
 
