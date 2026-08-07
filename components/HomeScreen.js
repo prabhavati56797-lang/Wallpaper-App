@@ -192,6 +192,24 @@ export default class HomeScreen extends Component {
             </TouchableOpacity>
           </View>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         //000000000000000000000000000000000000000000000000000000000000000000
           {/* 3. Explore Categories */}
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Explore Categories</Text>
@@ -222,6 +240,26 @@ export default class HomeScreen extends Component {
             ))}
           </ScrollView>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          //0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
           {/* Toolkit Row 1 */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolkitRow}>
             {[
@@ -290,6 +328,40 @@ export default class HomeScreen extends Component {
             </View>
           </TouchableOpacity>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         //00000000000000000000000000000000000000000000000000000000
           {/* Toolkit Row 2 */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolkitRow}>
             {[
@@ -319,6 +391,32 @@ export default class HomeScreen extends Component {
             ))}
           </ScrollView>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
           {/* 7. Trending Spotlight Section */}
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Trending Spotlight</Text>
@@ -344,21 +442,25 @@ export default class HomeScreen extends Component {
             <Ionicons name="chevron-forward-outline" size={20} color="#9CA3AF" />
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.trendingCard}
-            onPress={() => this.props.navigation.navigate('GlobalNews')}
-            activeOpacity={0.9}
-          >
-            <View style={styles.trendingContent}>
-              <View style={styles.trendingBadge}>
-                <Ionicons name="globe" size={11} color="#38BDF8" />
-                <Text style={styles.trendingBadgeText}> World Pulse</Text>
-              </View>
-              <Text style={styles.trendingTitle}>Global News & Stories Hub</Text>
-              <Text style={styles.trendingDesc}>Explore live world updates, top breaking stories, and global trends instantly.</Text>
-            </View>
-            <Ionicons name="chevron-forward-outline" size={20} color="#9CA3AF" />
-          </TouchableOpacity>
+
+            //7777777777777777777777777777777777777777
+         <TouchableOpacity 
+  style={styles.trendingCard}
+  onPress={() => this.props.navigation.navigate('UniversalSearchScreen', { 
+    initialUrl: 'https://www.reuters.com/' // यह रॉयटर्स की वेबसाइट सीधे ऐप के अंदर खोलेगा
+  })}
+  activeOpacity={0.9}
+>
+  <View style={styles.trendingContent}>
+    <View style={styles.trendingBadge}>
+      <Ionicons name="newspaper-outline" size={11} color="#FF6B00" />
+      <Text style={styles.trendingBadgeText}> Reuters Live News</Text>
+    </View>
+    <Text style={styles.trendingTitle}>Reuters Global News & Markets</Text>
+    <Text style={styles.trendingDesc}>Read trusted global news, breaking stories, and market updates directly inside the app.</Text>
+  </View>
+  <Ionicons name="chevron-forward-outline" size={20} color="#9CA3AF" />
+</TouchableOpacity>
 
           <TouchableOpacity 
             style={styles.trendingCard}
@@ -423,6 +525,25 @@ export default class HomeScreen extends Component {
             </View>
             <Ionicons name="chevron-forward-outline" size={20} color="#9CA3AF" />
           </TouchableOpacity>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         </ScrollView>
       </View>

@@ -22,6 +22,9 @@ export default class App extends Component {
       { id: '10', title: 'Reddit', desc: 'कम्युनिटी चर्चाएं', url: 'https://www.reddit.com', icon: 'chatbubbles', color: '#FF4500' },
       { id: '11', title: 'Discord', desc: 'गेमिंग चैट', url: 'https://discord.com', icon: 'chatbox', color: '#5865F2' },
       { id: '12', title: 'Threads', desc: 'टेक्स्ट ऐप', url: 'https://www.threads.net', icon: 'at', color: '#000000' },
+    
+    
+    
     ]
   };
 
@@ -35,7 +38,7 @@ export default class App extends Component {
     // सर्च करने पर पूरा फिल्टर होगा, अन्यथा केवल पहले 10 ऐप्स दिखेंगे
     const filteredApps = searchQuery.length > 0 
       ? firebaseAppsList.filter(app => app.title.toLowerCase().includes(searchQuery.toLowerCase()))
-      : firebaseAppsList.slice(0, 10);
+      : firebaseAppsList.slice(0, 10000);
 
     // ब्राउज़र व्यू
     if (isBrowserOpen) {
