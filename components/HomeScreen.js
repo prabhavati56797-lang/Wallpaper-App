@@ -10,7 +10,11 @@ import {
   Image,
   Dimensions,
   Platform,
-  Alert
+  Alert,
+
+ActivityIndicator
+
+
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
@@ -209,33 +213,53 @@ export default class HomeScreen extends Component {
 
 
 
-         //000000000000000000000000000000000000000000000000000000000000000000
-          {/* 3. Explore Categories */}
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Explore Categories</Text>
-            <TouchableOpacity onPress={() => this.handleCategoryClick("All Categories")}>
-              <Text style={styles.viewAllText}>View All &gt;</Text>
-            </TouchableOpacity>
+
+
+
+
+
+
+
+
+///888888888888888888888888888888888888888888888888888
+{/* 🌟 Daily 10 Essential Apps & Services Hub */}
+{/* 🌟 Daily 10 Essential Apps & Services Hub */}
+    <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Daily Essential Hub</Text>
           </View>
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesRow}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolkitRow}>
             {[
-              { name: 'Nature', icon: 'flower-tulip-outline', color: 'rgba(52, 199, 89, 0.15)', iconColor: '#34C759', query: 'Nature landscape' },
-              { name: 'Abstract', icon: 'shape-outline', color: 'rgba(175, 82, 222, 0.15)', iconColor: '#AF52DE', query: 'Abstract art' },
-              { name: 'Technology', icon: 'chip', color: 'rgba(0, 122, 255, 0.15)', iconColor: '#3B82F6', query: 'Technology futuristic' },
-              { name: 'Animals', icon: 'cat', color: 'rgba(255, 149, 0, 0.15)', iconColor: '#FF9500', query: 'Cute animals' },
-              { name: 'Travel', icon: 'earth', color: 'rgba(90, 200, 250, 0.15)', iconColor: '#5AC8FA', query: 'Travel destinations' },
-              { name: 'Architecture', icon: 'city-variant-outline', color: 'rgba(88, 86, 214, 0.15)', iconColor: '#5856D6', query: 'Modern architecture' }
-            ].map((cat, index) => (
+              { title: 'WhatsApp', icon: 'whatsapp', color: '#25D366', url: 'https://web.whatsapp.com' },
+              { title: 'YouTube', icon: 'youtube', color: '#FF0000', url: 'https://www.youtube.com' },
+              { title: 'Instagram', icon: 'instagram', color: '#E1306C', url: 'https://www.instagram.com' },
+              { title: 'Gmail', icon: 'gmail', color: '#EA4335', url: 'https://mail.google.com' },
+              { title: 'Google Drive', icon: 'google-drive', color: '#4285F4', url: 'https://drive.google.com' },
+              { title: 'Facebook', icon: 'facebook', color: '#1877F2', url: 'https://www.facebook.com' },
+              { title: 'LinkedIn', icon: 'linkedin', color: '#0077B5', url: 'https://www.linkedin.com' },
+              { title: 'Twitter (X)', icon: 'twitter', color: '#1DA1F2', url: 'https://twitter.com' },
+              { title: 'Telegram', icon: 'send', color: '#0088cc', url: 'https://web.telegram.org' },
+              { title: 'Pinterest', icon: 'pinterest', color: '#E60023', url: 'https://in.pinterest.com' },
+              { title: 'Spotify', icon: 'spotify', color: '#1DB954', url: 'https://open.spotify.com' },
+              { title: 'Netflix', icon: 'netflix', color: '#E50914', url: 'https://www.netflix.com' },
+              { title: 'Prime Video', icon: 'play-box-outline', color: '#00A8E1', url: 'https://www.primevideo.com' },
+              { title: 'Flipkart', icon: 'shopping', color: '#2874F0', url: 'https://www.flipkart.com' },
+              { title: 'Amazon', icon: 'shopping-outline', color: '#FF9900', url: 'https://www.amazon.in' },
+              { title: 'Myntra', icon: 'tag-heart', color: '#FF3F6C', url: 'https://www.myntra.com' },
+              { title: 'Zomato', icon: 'food', color: '#E23744', url: 'https://www.zomato.com' },
+              { title: 'Swiggy', icon: 'bike-fast', color: '#FC8019', url: 'https://www.swiggy.com' },
+              { title: 'PhonePe', icon: 'credit-card', color: '#5F259F', url: 'https://www.phonepe.com' },
+              { title: 'Google Maps', icon: 'map-marker', color: '#4285F4', url: 'https://www.google.com/maps' },
+            ].map((app, idx) => (
               <TouchableOpacity 
-                key={index} 
-                style={styles.categoryCard}
-                onPress={() => this.handleCategoryClick(cat.query)}
+                key={idx} 
+                style={styles.toolkitCard}
+                onPress={() => this.props.navigation.navigate('DailyEssentialScreen', { 
+                  appName: app.title, appUrl: app.url, iconColor: app.color 
+                })}
               >
-                <View style={[styles.categoryIconBox, { backgroundColor: cat.color }]}>
-                  <MaterialCommunityIcons name={cat.icon} size={24} color={cat.iconColor} />
-                </View>
-                <Text style={styles.categoryName}>{cat.name}</Text>
+                <MaterialCommunityIcons name={app.icon} size={28} color={app.color} />
+                <Text style={styles.toolkitTitle}>{app.title}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -259,37 +283,68 @@ export default class HomeScreen extends Component {
 
 
 
-          //0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-          {/* Toolkit Row 1 */}
+
+
+
+
+
+
+
+
+
+
+
+
+
+//0000000000000000000000000000000000000000000099999999999999999999999999999999999
+{/* 🌟 Professional Video Editing & Creator Apps Hub */}
+   
+{/* 🌟 Professional 10 Editing & Creator Apps Hub */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Pro Editing & Creator Tools</Text>
+            <TouchableOpacity onPress={() => this.handleCategoryClick("All Editors")}>
+              <Text style={styles.viewAllText}>View All &gt;</Text>
+            </TouchableOpacity>
+          </View>
+
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolkitRow}>
             {[
-              { title: 'Video Clips', desc: 'Pro stock footage', icon: 'video-box', route: 'VideoClips' },
-              { title: 'Background Music', desc: 'Royalty-free tracks', icon: 'music-note-outline', route: 'BackgroundMusic' },
-              { title: 'Stickers & Gifs', desc: 'Animated elements', icon: 'sticker-emoji', route: 'StickersGifs' },
-              { title: 'Emoji Studio', desc: 'Trending expressions', icon: 'emoticon-happy-outline', route: 'EmojiStudio' },
-              { title: 'AI Video FX', desc: 'Cinematic visual effects', icon: 'auto-fix', route: 'AIVideoFX' },
-              { title: 'Sound FX', desc: 'Dynamic audio effects', icon: 'waveform', route: 'SoundFX' },
+              // 🎥 5 वीडियो एडिटिंग टूल्स
+              { title: 'Canva', desc: 'Designs & Posters', icon: 'palette', iconColor: '#00C4CC', url: 'https://www.canva.com' },
+              { title: 'CapCut', desc: 'Pro Video Editor', icon: 'movie-edit', iconColor: '#FFFFFF', url: 'https://www.capcut.com' },
+              { title: 'InShot', desc: 'Video & Photo Editor', icon: 'video-plus', iconColor: '#FF5533', url: 'https://inshot.com' },
+              { title: 'VN Editor', desc: 'Vlog & Reels Editor', icon: 'video-outline', iconColor: '#00F0FF', url: 'https://vlognow.me' },
+              { title: 'KineMaster', desc: 'Advanced Editing', icon: 'filmstrip', iconColor: '#FF3366', url: 'https://www.kinemaster.com' },
+              
+              // 🤖 2 AI इमेज और प्रॉम्प्ट जनरेटर टूल्स
+              { title: 'ChatGPT', desc: 'AI Prompts & Ideas', icon: 'robot', iconColor: '#10A37F', url: 'https://chatgpt.com' },
+              { title: 'Midjourney', desc: 'AI Image Art', icon: 'image-filter-hdr', iconColor: '#38BDF8', url: 'https://www.midjourney.com' },
+
+              // 🔍 3 इमेज और आईडिया सर्च टूल्स
+              { title: 'Pinterest', desc: 'Image & Idea Search', icon: 'pinterest', iconColor: '#E60023', url: 'https://in.pinterest.com' },
+              { title: 'Unsplash', desc: 'HD Stock Images', icon: 'image-outline', iconColor: '#FFFFFF', url: 'https://unsplash.com' },
+              { title: 'Picsart', desc: 'Creative Studio', icon: 'camera-burst', iconColor: '#9C27B0', url: 'https://picsart.com' },
             ].map((tool, idx) => (
               <TouchableOpacity 
                 key={idx} 
                 style={styles.toolkitCard}
                 onPress={() => {
-                  if (tool.route) {
-                    this.props.navigation.navigate(tool.route);
-                  } else {
-                    this.showNextVersionAlert(tool.title);
-                  }
+                  this.props.navigation.navigate('UniversalBrowserScreen', { 
+                    appName: tool.title, 
+                    appUrl: tool.url, 
+                    iconColor: tool.iconColor 
+                  });
                 }}
                 activeOpacity={0.8}
               >
-                <MaterialCommunityIcons name={tool.icon} size={24} color="#3B82F6" style={{ marginBottom: 8 }} />
+                <MaterialCommunityIcons name={tool.icon} size={28} color={tool.iconColor} style={{ marginBottom: 8 }} />
                 <Text style={styles.toolkitTitle}>{tool.title}</Text>
                 <Text style={styles.toolkitDesc}>{tool.desc}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
 
-          {/* Hero Banner Card */}
+          {/* 🌟 3. Hero Banner Card */}
           <TouchableOpacity 
             style={styles.heroBannerCard} 
             onPress={() => this.props.navigation.navigate('VideosScreen')}
@@ -355,45 +410,49 @@ export default class HomeScreen extends Component {
 
 
 
-
-
-
-
-
-
          //00000000000000000000000000000000000000000000000000000000
           {/* Toolkit Row 2 */}
+         {/* 🌟 Food, Quick Commerce & Shopping Hub */}
+        {/* 🌟 Food, Quick Commerce & Shopping Hub */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Food & Shopping Hub</Text>
+            <TouchableOpacity onPress={() => this.handleCategoryClick("All Food & Shopping")}>
+              <Text style={styles.viewAllText}>View All &gt;</Text>
+            </TouchableOpacity>
+          </View>
+
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolkitRow}>
             {[
-              { title: 'Pro Timeline', desc: 'Multi-layer tracks', icon: 'filmstrip', route: 'ProTimeline' },
-              { title: 'Thumbnail Studio', desc: 'Design covers', icon: 'view-dashboard-outline', route: 'ThumbnailStudio' },
-              { title: 'AI Magic Lab', desc: 'Smart tools', icon: 'star-shooting-outline', route: 'AIMagicLab' },
-              { title: 'FX Color Grading', desc: 'Cinematic filters', icon: 'palette-swatch-outline', route: 'FXColorGrading' },
-              { title: 'Audio Beat Sync', desc: 'Rhythm cuts', icon: 'waveform', route: 'AudioBeatSync' },
-              { title: 'Kinetic Text', desc: 'Animated captions', icon: 'format-text', route: 'KineticText' },
+              { title: 'Zomato', desc: 'Food Delivery', icon: 'food', iconColor: '#E23744', url: 'https://www.zomato.com' },
+              { title: 'Swiggy', desc: 'Food & Instamart', icon: 'bike-fast', iconColor: '#FC8019', url: 'https://www.swiggy.com' },
+              { title: 'Blinkit', desc: '10-Minute Grocery', icon: 'flash', iconColor: '#F7CB15', url: 'https://blinkit.com' },
+              { title: 'Zepto', desc: 'Grocery Delivery', icon: 'timer-sand', iconColor: '#800080', url: 'https://www.zeptonow.com' },
+              { title: 'Flipkart', desc: 'Shopping & Deals', icon: 'shopping-outline', iconColor: '#2874F0', url: 'https://www.flipkart.com' },
+              { title: 'Amazon', desc: 'Online Shopping', icon: 'shopping', iconColor: '#FF9900', url: 'https://www.amazon.in' },
+              { title: 'Myntra', desc: 'Fashion & Style', icon: 'tag-heart-outline', iconColor: '#FF3F6C', url: 'https://www.myntra.com' },
+              { title: 'Meesho', desc: 'Reselling & Shopping', icon: 'storefront-outline', iconColor: '#9C27B0', url: 'https://www.meesho.com' },
+              { title: "Domino's", desc: 'Pizza Delivery', icon: 'food-pizza', iconColor: '#0055A5', url: 'https://pizzaonline.dominos.co.in' },
+              { title: 'Pizza Hut', desc: 'Delicious Pizzas', icon: 'silverware-fork-knife', iconColor: '#EE3124', url: 'https://www.pizzahut.co.in' },
             ].map((tool, idx) => (
               <TouchableOpacity 
                 key={idx} 
                 style={styles.toolkitCard}
                 onPress={() => {
-                  if (tool.route) {
-                    this.props.navigation.navigate(tool.route);
-                  } else {
-                    this.showNextVersionAlert(tool.title);
-                  }
+                  // अब यह सीधे हमारी नई FoodShoppingScreen फाइल में खुलेगा
+                  this.props.navigation.navigate('FoodShoppingScreen', { 
+                    appName: tool.title, 
+                    appUrl: tool.url, 
+                    iconColor: tool.iconColor 
+                  });
                 }}
                 activeOpacity={0.8}
               >
-                <MaterialCommunityIcons name={tool.icon} size={24} color="#3B82F6" style={{ marginBottom: 8 }} />
+                <MaterialCommunityIcons name={tool.icon} size={28} color={tool.iconColor} style={{ marginBottom: 8 }} />
                 <Text style={styles.toolkitTitle}>{tool.title}</Text>
                 <Text style={styles.toolkitDesc}>{tool.desc}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
-
-
-
-
 
 
 
@@ -771,4 +830,20 @@ export default class HomeScreen extends Component {
     elevation: 4,
     left: 40
   },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 });

@@ -35,6 +35,8 @@ export default class ProfileScreen extends Component {
       isImageModalVisible: false,
       isEditProfileModalVisible: false,
       isLogoutModalVisible: false,
+      isUpcomingModalVisible: false, // नए अपकमिंग फीचर पॉप-अप के लिए
+      selectedFeatureTitle: '',
 
       // एडिट फॉर्म स्टेट
       tempName: routeParams.userName || 'PRABHAWATI USER',
@@ -78,19 +80,19 @@ export default class ProfileScreen extends Component {
       Animated.parallel([
         Animated.sequence([
           Animated.timing(this.pulseAnim, {
-            toValue: 1.08,
-            duration: 1200,
+            toValue: 1.06,
+            duration: 1400,
             useNativeDriver: true,
           }),
           Animated.timing(this.pulseAnim, {
             toValue: 1,
-            duration: 1200,
+            duration: 1400,
             useNativeDriver: true,
           }),
         ]),
         Animated.timing(this.rotateAnim, {
           toValue: 1,
-          duration: 8000,
+          duration: 10000,
           useNativeDriver: true,
         }),
       ])
@@ -177,25 +179,26 @@ export default class ProfileScreen extends Component {
     this.setState({ isLogoutModalVisible: false });
   };
 
-
-
-
-
-
-handleLogout = () => {
+  handleLogout = () => {
     this.closeLogoutModal();
     if (this.props.navigation && this.props.navigation.replace) {
-      this.props.navigation.replace('Auth'); // यहाँ 'Auth' होना चाहिए
+      this.props.navigation.replace('Auth');
     } else if (this.props.navigation && this.props.navigation.navigate) {
       this.props.navigation.navigate('Auth');
     }
   };
 
-
-
-
-
-
+  // अपकमिंग फीचर्स के लिए क्लिक हैंडलर
+  handleUpcomingFeature = (title) => {
+    this.setState({ 
+      selectedFeatureTitle: title,
+      isUpcomingModalVisible: true 
+    });
+    this.startModalAnimation();
+  };
+  closeUpcomingModal = () => {
+    this.setState({ isUpcomingModalVisible: false });
+  };
 
   startModalAnimation = () => {
     this.modalScale.setValue(0);
@@ -222,10 +225,11 @@ handleLogout = () => {
       isImageModalVisible, 
       isEditProfileModalVisible,
       isLogoutModalVisible,
+      isUpcomingModalVisible,
+      selectedFeatureTitle,
       tempName
     } = this.state;
 
-    // रोटेशन एनिमेशन इंटरपॉलेशन
     const spin = this.rotateAnim.interpolate({
       inputRange: [0, 1],
       outputRange: ['0deg', '360deg']
@@ -244,7 +248,7 @@ handleLogout = () => {
             <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
           </TouchableOpacity>
           <View style={styles.headerBadgeContainer}>
-            <Text style={styles.headerBadgeText}>⭐ Pro Dashboard</Text>
+            <Text style={styles.headerBadgeText}>⭐ Enterprise Hub</Text>
           </View>
           <TouchableOpacity 
             style={styles.backBtn} 
@@ -264,7 +268,7 @@ handleLogout = () => {
                   {profileImage ? (
                     <Image source={{ uri: profileImage }} style={styles.uploadedAvatar} />
                   ) : (
-                    <Ionicons name="person" size={38} color="#C084FC" />
+                    <Ionicons name="person" size={40} color="#C084FC" />
                   )}
                 </View>
               </View>
@@ -275,33 +279,99 @@ handleLogout = () => {
 
             <Text style={styles.profileName}>{userName}</Text>
             
-            {/* ईमेल एड्रेस - प्रोफाइल नाम के ठीक नीचे */}
             <View style={styles.emailBox}>
               <Ionicons name="mail-outline" size={14} color="#38BDF8" style={{ marginRight: 6 }} />
               <Text style={styles.emailBoxText}>{userEmail}</Text>
             </View>
 
             <View style={styles.devTag}>
-              <Ionicons name="sparkles" size={12} color="#C084FC" style={{ marginRight: 4 }} />
-              <Text style={styles.devTagText}>Verified Active Member</Text>
+              <Ionicons name="shield-checkmark" size={13} color="#C084FC" style={{ marginRight: 5 }} />
+              <Text style={styles.devTagText}>Verified Enterprise Partner</Text>
             </View>
 
             <Text style={styles.profileBio}>
-              आपके अकाउंट का सारा डेटा सुरक्षित रूप से सिंक है। अपनी फोटो या नाम हमेशा के लिए यहाँ बदल सकते हैं।
+              आपका क्लाउड डेटा पूरी तरह सुरक्षित है। अपनी एजेंसी प्रोफाइल और सेटिंग्स को आसानी से प्रबंधित करें।
             </Text>
           </View>
 
-          {/* कैटेगरी की जगह पर शानदार हमेशा चलने वाला (Looping) एनिमेशन बॉक्स */}
+          {/* Real-Time Sync Animated Widget */}
           <View style={styles.animationSectionBox}>
             <Animated.View style={[styles.animOuterGlow, { transform: [{ scale: this.pulseAnim }] }]}>
               <View style={styles.animInnerCard}>
-                <Animated.View style={{ transform: [{ rotate: spin }], marginBottom: 12 }}>
-                  <MaterialCommunityIcons name="orbit" size={48} color="#38BDF8" />
+                <Animated.View style={{ transform: [{ rotate: spin }], marginBottom: 10 }}>
+                  <MaterialCommunityIcons name="orbit" size={44} color="#38BDF8" />
                 </Animated.View>
-                <Text style={styles.animTitleText}>Real-Time Sync Active</Text>
-                <Text style={styles.animSubText}>सिस्टम पूरी तरह से सक्रिय और सुरक्षित रूप से जुड़ा हुआ है।</Text>
+                <Text style={styles.animTitleText}>Prabhavati Cloud Sync Active</Text>
+                <Text style={styles.animSubText}>सिस्टम पूरी तरह से सक्रिय, सुरक्षित और तेज गति से जुड़ा हुआ है।</Text>
               </View>
             </Animated.View>
+          </View>
+
+          {/* Modern Professional Quick Hub / Menu Options */}
+          <View style={styles.menuSectionTitleContainer}>
+            <Text style={styles.menuSectionTitleText}>प्रबंधन और टूल्स (Enterprise Tools)</Text>
+          </View>
+
+          <View style={styles.menuGridContainer}>
+            <TouchableOpacity 
+              style={styles.menuCard} 
+              activeOpacity={0.8}
+              onPress={() => this.handleUpcomingFeature('एजेंसी एनालिटिक्स (Agency Analytics)')}
+            >
+              <View style={[styles.menuIconBox, { backgroundColor: 'rgba(56, 189, 248, 0.15)' }]}>
+                <Ionicons name="stats-chart" size={20} color="#38BDF8" />
+              </View>
+              <View style={styles.menuTextContent}>
+                <Text style={styles.menuCardTitle}>एजेंसी एनालिटिक्स</Text>
+                <Text style={styles.menuCardDesc}>परफॉरमेंस और ट्रैफिक रिपोर्ट</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="#4B5563" />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.menuCard} 
+              activeOpacity={0.8}
+              onPress={() => this.handleUpcomingFeature('क्लाउड सिक्योरिटी (Cloud Security)')}
+            >
+              <View style={[styles.menuIconBox, { backgroundColor: 'rgba(168, 85, 247, 0.15)' }]}>
+                <Ionicons name="shield-lock" size={20} color="#C084FC" />
+              </View>
+              <View style={styles.menuTextContent}>
+                <Text style={styles.menuCardTitle}>क्लाउड सिक्योरिटी</Text>
+                <Text style={styles.menuCardDesc}>पासकी और एडवांस प्रोटेक्शन</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="#4B5563" />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.menuCard} 
+              activeOpacity={0.8}
+              onPress={() => this.handleUpcomingFeature('टीम सहयोग (Team Collaboration)')}
+            >
+              <View style={[styles.menuIconBox, { backgroundColor: 'rgba(52, 211, 153, 0.15)' }]}>
+                <Ionicons name="people" size={20} color="#34D399" />
+              </View>
+              <View style={styles.menuTextContent}>
+                <Text style={styles.menuCardTitle}>टीम सहयोग</Text>
+                <Text style={styles.menuCardDesc}>सहयोगियों और पार्टनर्स को जोड़ें</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="#4B5563" />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.menuCard} 
+              activeOpacity={0.8}
+              onPress={() => this.handleUpcomingFeature('एपिआई इंटीग्रेशन (API Integrations)')}
+            >
+              <View style={[styles.menuIconBox, { backgroundColor: 'rgba(251, 191, 36, 0.15)' }]}>
+                <Ionicons name="code-slash" size={20} color="#FBBF24" />
+              </View>
+              <View style={styles.menuTextContent}>
+                <Text style={styles.menuCardTitle}>एपिआई इंटीग्रेशन</Text>
+                <Text style={styles.menuCardDesc}>कस्टम सॉफ्टवेयर और वेबहुक</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="#4B5563" />
+            </TouchableOpacity>
           </View>
 
           {/* लॉग आउट बटन */}
@@ -313,7 +383,7 @@ handleLogout = () => {
           {/* Agency Branding Footer */}
           <View style={styles.footerBranding}>
             <Text style={styles.footerBrandText}>Designed & Developed by Prabhavati Agency</Text>
-            <Text style={styles.footerSubText}>Excellence in Every Line of Code</Text>
+            <Text style={styles.footerSubText}>Excellence in Every Line of Code • Enterprise Edition</Text>
           </View>
 
         </ScrollView>
@@ -378,36 +448,42 @@ handleLogout = () => {
           </View>
         </Modal>
 
-        {/* 3. लॉग आउट कन्फर्मेशन मॉडल */}
+        {/* 3. अपकमिंग फीचर्स मॉडल (अगले वर्जन के लिए शानदार मैसेज) */}
         <Modal
           transparent={true}
-          visible={isLogoutModalVisible}
+          visible={isUpcomingModalVisible}
           animationType="none"
-          onRequestClose={this.closeLogoutModal}
+          onRequestClose={this.closeUpcomingModal}
         >
           <View style={styles.modalOverlay}>
             <Animated.View style={[styles.modalContentBox, { opacity: this.modalFade, transform: [{ scale: this.modalScale }] }]}>
               <View style={styles.modalHeaderIndicator} />
-              <Ionicons name="warning-outline" size={48} color="#EF4444" style={{ marginBottom: 10 }} />
-              <Text style={styles.modalTitle}>लॉग आउट करें?</Text>
-              <Text style={styles.modalSubtitle}>क्या आप वाकई अपने अकाउंट से बाहर (Log Out) होना चाहते हैं?</Text>
+              <View style={styles.upcomingIconCircle}>
+                <Ionicons name="sparkles" size={28} color="#C084FC" />
+              </View>
+              <Text style={styles.modalTitle}>जल्द आ रहा है! 🚀</Text>
+              <Text style={styles.modalHighlightText}>{selectedFeatureTitle}</Text>
+              <Text style={styles.modalSubtitleLarge}>
+                हमारी डेवलेपमेंट टीम इस प्रीमियम फीचर पर तेजी से काम कर रही है। यह सुविधा आपको ऐप के **अगले नए वर्जन** में देखने को मिलेगी।
+              </Text>
+              <Text style={styles.modalApologyText}>
+                असुविधा के लिए हमें खेद है, और आपके धैर्य व सहयोग के लिए बहुत-बहुत धन्यवाद! 🙏
+              </Text>
 
-              <TouchableOpacity style={styles.logoutConfirmButton} activeOpacity={0.8} onPress={this.handleLogout}>
-                <Text style={styles.logoutConfirmButtonText}>हाँ, लॉग आउट करें</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.closeModalButton} activeOpacity={0.8} onPress={this.closeLogoutModal}>
-                <Text style={styles.closeModalButtonText}>नहीं, यहीं रहें</Text>
+              <TouchableOpacity style={styles.primaryActionButton} activeOpacity={0.8} onPress={this.closeUpcomingModal}>
+                <Text style={styles.primaryActionText}>ठीक है, समझ गया</Text>
               </TouchableOpacity>
             </Animated.View>
           </View>
         </Modal>
 
+
+
+
       </SafeAreaView>
     );
   }
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -447,7 +523,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   profileCard: {
-    backgroundColor: 'rgba(17, 24, 39, 0.8)',
+    backgroundColor: 'rgba(17, 24, 39, 0.85)',
     borderRadius: 24,
     padding: 24,
     alignItems: 'center',
@@ -466,9 +542,9 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   avatarGlowRing: {
-    width: 84,
-    height: 84,
-    borderRadius: 42,
+    width: 88,
+    height: 88,
+    borderRadius: 44,
     backgroundColor: 'rgba(168, 85, 247, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -477,9 +553,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   avatarInner: {
-    width: 74,
-    height: 74,
-    borderRadius: 37,
+    width: 78,
+    height: 78,
+    borderRadius: 39,
     backgroundColor: 'rgba(124, 58, 237, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -562,7 +638,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(56, 189, 248, 0.25)',
   },
   animInnerCard: {
-    padding: 24,
+    padding: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -576,6 +652,51 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#9CA3AF',
     textAlign: 'center',
+  },
+  // मेन्यू ग्रिड स्टाइल्स
+  menuSectionTitleContainer: {
+    marginBottom: 12,
+    paddingHorizontal: 4,
+  },
+  menuSectionTitleText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#94A3B8',
+    letterSpacing: 0.5,
+  },
+  menuGridContainer: {
+    marginBottom: 20,
+  },
+  menuCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(17, 24, 39, 0.7)',
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  menuIconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
+  },
+  menuTextContent: {
+    flex: 1,
+  },
+  menuCardTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 2,
+  },
+  menuCardDesc: {
+    fontSize: 11,
+    color: '#9CA3AF',
   },
   logoutButton: {
     flexDirection: 'row',
@@ -638,11 +759,43 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     textAlign: 'center',
   },
+  modalHighlightText: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#38BDF8',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
   modalSubtitle: {
     fontSize: 13,
     color: '#9CA3AF',
     textAlign: 'center',
     marginBottom: 20,
+  },
+  modalSubtitleLarge: {
+    fontSize: 13,
+    color: '#D1D5DB',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 10,
+  },
+  modalApologyText: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    textAlign: 'center',
+    fontStyle: 'italic',
+    marginBottom: 20,
+  },
+  upcomingIconCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(168, 85, 247, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(168, 85, 247, 0.4)',
+    marginBottom: 12,
   },
   inputWrapper: {
     width: '100%',
@@ -674,12 +827,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 10,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   primaryActionText: {
     color: '#030712',
     fontSize: 15,
     fontWeight: '900',
+  },
+  closeModalButton: {
+    width: '100%',
+    height: 46,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+  },
+  closeModalButtonText: {
+    color: '#9CA3AF',
+    fontSize: 14,
+    fontWeight: '700',
   },
   logoutConfirmButton: {
     backgroundColor: '#EF4444',
@@ -688,27 +854,11 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   logoutConfirmButtonText: {
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '900',
   },
-  closeModalButton: {
-    width: '100%',
-    height: 46,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-  },
-  closeModalButtonText: {
-    color: '#E5E7EB',
-    fontSize: 14,
-    fontWeight: '700',
-  }
 });
